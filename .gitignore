@@ -1,0 +1,15 @@
+## js dependencies don't need to push
+node_modules/
+bower_components/
+
+## Build and test artifacts
+.sass-cache/
+.tmp/
+dist/
+
+## IDE specific files
+# Intellij
+.idea/
+*.iml
+# Vim temporary files
+*.swp
