@@ -18,6 +18,7 @@ export default {
         base: basePath,
         bowerComponents: path.join(basePath, 'bower_components'),
         build: path.join(basePath, 'build'),
+        deploySrc: path.join(basePath, 'src/app/deploy'),
         dist: path.join(basePath, 'dist'),
         externs: path.join(basePath, 'src/app/externs'),
         frontendSrc: path.join(basePath, 'src/app/frontend'),
@@ -32,6 +33,7 @@ export default {
         tmp: path.join(basePath, '.tmp'),
     },
 
+    // The name of the Angular module
     frontend: {
         // The name of Angular module, i.e., the module that bootstrap the application
         rootModuleName: 'k8sconsole',
