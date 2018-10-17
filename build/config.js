@@ -21,6 +21,7 @@ export default {
         frontendSrc: path.join(basePath, 'src/app/frontend'),
         frontendTest: path.join(basePath, 'src/test/frontend'),
         karmaConf: path.join(basePath, 'build/karma.conf.js'),
+        partials: path.join(basePath, '.tmp/partials'),
         prodTmp: path.join(basePath, '.tmp/prod'),
         serve: path.join(basePath, '.tmp/serve'),
         src: path.join(basePath, 'src'),
