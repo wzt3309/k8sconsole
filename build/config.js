@@ -38,4 +38,8 @@ export default {
         // The name of Angular module, i.e., the module that bootstrap the application
         rootModuleName: 'k8sconsole',
     },
+
+    deploy: {
+        imageName: 'wzt3309/k8sconsole',
+    },
 };
