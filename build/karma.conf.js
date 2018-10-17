@@ -31,5 +31,3 @@ gulp.task('test', function (doneFn) {
 gulp.task('test:watch', function (doneFn) {
     runUnitTests(false, doneFn);
 });
-
-
