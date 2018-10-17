@@ -3,22 +3,21 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
+	"github.com/golang/glog"
+	"github.com/spf13/pflag"
 	"net/http"
 )
 
 var (
-	port = flag.Int("port", 8080, "The port that the server listens to")
+	port = pflag.Int("port", 8080, "The port that the server listens to")
 )
 
 func main() {
-	flag.Parse()
-	log.Print("Starting HTTP server on port ", *port)
+	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+	pflag.Parse()
+	glog.Info("Starting HTTP server on port ", *port)
+	defer glog.Flush()
 
 	http.Handle("/", http.FileServer(http.Dir("./")))
-	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
-
-	if err != nil {
-		log.Fatal("HTTP server error: ", err)
-	}
+	glog.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }
