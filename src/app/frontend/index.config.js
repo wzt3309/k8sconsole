@@ -1,3 +1,5 @@
-export function config($logProvider) {
-    $logProvider.debugEnabled(true);
+/**
+ * @ngInject
+ */
+export function config() {
 }
