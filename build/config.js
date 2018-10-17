@@ -14,6 +14,7 @@ export default {
         app: path.join(basePath, 'src/app'),
         assets: path.join(basePath, 'src/app/assets'),
         backendSrc: path.join(basePath, 'src/app/backend'),
+        backendTmp: path.join(basePath, '.tmp/backend'),
         base: basePath,
         bowerComponents: path.join(basePath, 'bower_components'),
         build: path.join(basePath, 'build'),

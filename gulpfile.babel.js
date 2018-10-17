@@ -1,3 +1,4 @@
+import './build/backend';
 import './build/build';
 import './build/index';
 import './build/script';
