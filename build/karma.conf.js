@@ -33,6 +33,8 @@ export default function (conf) {
 
         files: getFileList(),
 
+        LogLevel: 'WARN',
+
         frameworks: ['jasmine', 'browserify'],
 
         browsers: ['Chrome'],
