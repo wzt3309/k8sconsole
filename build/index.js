@@ -14,11 +14,11 @@ function createIndexFile(indexPath) {
     let injectOptions = {
         ignorePath: [path.relative(config.paths.base, indexPath)],
         addRootSlash: false,
-        quiet: true
+        quiet: true,
     };
 
     let wiredepOptions = {
-        ignorePath: path.relative(config.paths.frontendSrc, indexPath) + '/'
+        ignorePath: path.relative(config.paths.frontendSrc, indexPath) + '/',
     };
 
     return gulp.src(path.join(config.paths.frontendSrc, 'index.html'))

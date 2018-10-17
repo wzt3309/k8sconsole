@@ -11,14 +11,14 @@ function getFileList() {
     // All app dependencies are required for tests. Include them.
     let wiredepOptions = {
         dependencies: true,
-        devDependencies: true
+        devDependencies: true,
     };
 
     return wiredep(wiredepOptions).js
         .concat([
             path.join(config.paths.frontendTest, '**/*.js'),
             path.join(config.paths.frontendSrc, '**/*.js'),
-            path.join(config.paths.frontendSrc, '**/*.html')
+            path.join(config.paths.frontendSrc, '**/*.html'),
         ]);
 }
 
@@ -48,7 +48,7 @@ export default function (conf) {
             'karma-jasmine',
             'karma-ng-html2js-preprocessor',
             'karma-sourcemap-loader',
-            'karma-browserify'
+            'karma-browserify',
         ],
 
         // karma-browserify plugin config.
@@ -59,15 +59,15 @@ export default function (conf) {
             paths: [config.paths.frontendSrc, config.paths.frontendTest],
             transform: [
                 // Transform ES6 code into ES5 so that browsers can digest it.
-                'babelify'
-            ]
+                'babelify',
+            ],
         },
 
         // karma-ng-html2js-preprocessor plugin config.
         ngHtml2JsPreprocessor: {
             stripPrefix: config.paths.frontendSrc + '/',
-            moduleName: config.frontend.moduleName
-        }
+            moduleName: config.frontend.moduleName,
+        },
     };
 
     // Convert all JS code written ES6 with modules to ES5 bundles that browsers can digest.

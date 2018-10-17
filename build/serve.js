@@ -7,15 +7,15 @@ import config from "./config";
 
 function browserSyncInit(baseDir) {
     browserSync.use(browserSyncSpa({
-        selector: '[ng-app]'
+        selector: '[ng-app]',
     }));
 
     browserSync.instance = browserSync.init({
         startPath: '/',
         server: {
-            baseDir: baseDir
+            baseDir: baseDir,
         },
-        browser: []
+        browser: [],
     });
 }
 
@@ -25,7 +25,7 @@ gulp.task('serve', ['watch'], function () {
         config.paths.serve,
         config.paths.frontendSrc,
         config.paths.app,
-        config.paths.base
+        config.paths.base,
     ]);
 });
 
@@ -39,7 +39,7 @@ gulp.task('watch', ['index'], function () {
     gulp.watch([path.join(config.paths.frontendSrc, 'index.html'), 'bower.json'], ['index']);
 
     gulp.watch([
-        path.join(config.paths.frontendSrc, '**/*.scss')
+        path.join(config.paths.frontendSrc, '**/*.scss'),
     ], function (event) {
         if (event.type === 'changed') {
             // If is file changed, rebuild style files

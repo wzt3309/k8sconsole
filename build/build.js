@@ -25,8 +25,8 @@ gulp.task('build', ['index:prod', 'assets'], function () {
                 // To resolve local path
                 config.paths.prodTmp,
                 // To resolve bower_components/... paths
-                config.paths.base
-            ]
+                config.paths.base,
+            ],
         }))
         .pipe(vendorCssFilter)
         .pipe(gulpMinifyCss())
@@ -42,11 +42,11 @@ gulp.task('build', ['index:prod', 'assets'], function () {
         .pipe(gulpMinifyHtml({
             empty: true,
             spare: true,
-            quotes: true
+            quotes: true,
         }))
         .pipe(htmlFilter.restore)
         .pipe(gulp.dest(config.paths.dist))
-        .pipe(gulpSize({ showFiles: true }));
+        .pipe(gulpSize({showFiles: true}));
 });
 
 // Copies assets to the dist dir

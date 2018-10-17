@@ -11,7 +11,7 @@ function runUnitTests(singleRun, doneFn) {
     let localConfig = {
         configFile: config.paths.karmaConf,
         singleRun: singleRun,
-        autoWatch: !singleRun
+        autoWatch: !singleRun,
     };
 
     let server = new karma.Server(localConfig, function (failCount) {

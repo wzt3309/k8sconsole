@@ -29,11 +29,11 @@ export default {
         prodTmp: path.join(basePath, '.tmp/prod'),
         serve: path.join(basePath, '.tmp/serve'),
         src: path.join(basePath, 'src'),
-        tmp: path.join(basePath, '.tmp')
+        tmp: path.join(basePath, '.tmp'),
     },
 
     frontend: {
         // The name of Angular module, i.e., the module that bootstrap the application
-        rootModuleName: 'k8sconsole'
-    }
+        rootModuleName: 'k8sconsole',
+    },
 };

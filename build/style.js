@@ -12,10 +12,10 @@ import conf from './config';
 
 gulp.task('styles', function () {
     let sassOptions = {
-        style: 'expanded'
+        style: 'expanded',
     };
 
-    let cssFilter = gulpFilter('**/*.css', {restore: true})
+    let cssFilter = gulpFilter('**/*.css', {restore: true});
 
     return gulp.src(path.join(conf.paths.frontendSrc, '**/*.scss'))
         .pipe(gulpSass(sassOptions))
@@ -35,7 +35,7 @@ gulp.task('styles', function () {
  */
 gulp.task('styles:prod', function () {
     let sassOptions = {
-        style: 'compressed'
+        style: 'compressed',
     };
 
     return gulp.src(path.join(conf.paths.frontendSrc, '**/*.scss'))
