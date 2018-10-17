@@ -1,6 +1,7 @@
 ## js dependencies don't need to push
 node_modules/
 bower_components/
+package-lock.json
 
 ## Build and test artifacts
 .sass-cache/
