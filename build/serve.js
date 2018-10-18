@@ -28,11 +28,11 @@ let runningBackendProcess = null;
 function getBackendArgs(mode) {
     let args = [];
 
-    if (mode === 'prod') {
+    if (mode === config.build.prod) {
         console.log('backend in prod mode')
     }
 
-    if (mode === 'dev') {
+    if (mode === config.build.dev) {
         console.log('backend in dev mode')
     }
 
@@ -95,7 +95,7 @@ gulp.task('serve:prod', ['spawn-backend:prod']);
  */
 gulp.task('spawn-backend', ['backend', 'kill-backend'], function () {
     runningBackendProcess = child.spawn(
-        path.join(config.paths.serve, config.backend.binaryName), getBackendArgs('dev'),
+        path.join(config.paths.serve, config.backend.binaryName), getBackendArgs(config.build.dev),
         {stdio: 'inherit', cwd: config.paths.serve});
 
     runningBackendProcess.on("exit", function () {
@@ -112,7 +112,7 @@ gulp.task('spawn-backend', ['backend', 'kill-backend'], function () {
  */
 gulp.task('spawn-backend:prod', ['build-frontend', 'backend:prod', 'kill-backend'], function() {
     runningBackendProcess = child.spawn(
-        path.join(config.paths.dist, config.backend.binaryName), getBackendArgs('prod'),
+        path.join(config.paths.dist, config.backend.binaryName), getBackendArgs(config.build.prod),
         {stdio: 'inherit', cwd: config.paths.dist});
 
     runningBackendProcess.on('exit', function() {
