@@ -28,7 +28,7 @@ const env = lodash.merge(process.env, {GOPATH: sourceGopath, PATH: devPath});
  * @param doneFn - Callback
  * @param {!Object<string, string>} envOverride - optional environment variables override map.
  */
-export function goCommand(args, doneFn, envOverride) {
+export default function goCommand(args, doneFn, envOverride) {
     checkPrerequisites()
         .then(() => spawnGoPrcocess(args, envOverride))
         .then(doneFn)
@@ -68,7 +68,7 @@ function checkPrerequisites() {
 function checkGo() {
     let deferred = q.defer();
     child.exec(
-        'which go',
+        'go version',
         {
             env: env,
         },
