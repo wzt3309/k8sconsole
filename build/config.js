@@ -39,6 +39,10 @@ export default {
         rootModuleName: 'k8sconsole',
     },
 
+    backend: {
+      binaryName: 'console',
+    },
+
     deploy: {
         imageName: 'wzt3309/k8sconsole',
     },
