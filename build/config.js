@@ -39,14 +39,25 @@ export default {
         tmp: path.join(basePath, '.tmp'),
     },
 
-    // The name of the Angular module
+    /**
+     * The name of the Angular module
+     */
     frontend: {
-        // The name of Angular module, i.e., the module that bootstrap the application
+        /**
+         * The name of Angular module, i.e., the module that bootstrap the application
+         */
         rootModuleName: 'k8sconsole',
     },
 
     backend: {
-      binaryName: 'console',
+        /**
+         * The name of the backend binary.
+         */
+        binaryName: 'console',
+        /**
+         * Name of the main backend package that is used in go build command.
+         */
+        mainPackageName: 'github.com/wzt3309/k8sconsole/src/app/backend',
     },
 
     deploy: {
