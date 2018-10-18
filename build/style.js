@@ -1,13 +1,16 @@
+/**
+ * @fileOverview Gulp tasks for processing stylesheets
+ */
 import gulp from 'gulp';
 import gulpAutoprefixer from 'gulp-autoprefixer';
 import gulpConcat from 'gulp-concat';
 import gulpMinifyCss from 'gulp-minify-css';
 import gulpSass from 'gulp-sass';
 import gulpSourcemaps from 'gulp-sourcemaps';
-
 import path from 'path';
 
 import config from './config';
+import {browserSyncInstance} from "./serve";
 
 /**
  * Compile stylesheets and places them into serve folder. Each stylesheet file is compiled separately
@@ -23,6 +26,8 @@ gulp.task('styles', function () {
         .pipe(gulpAutoprefixer())
         .pipe(gulpSourcemaps.write('.'))    // end of source map
         .pipe(gulp.dest(config.paths.serve))
+        // If browserSync is running, inform it that styles have changed
+        .pipe(browserSyncInstance.stream());
 });
 
 /**
