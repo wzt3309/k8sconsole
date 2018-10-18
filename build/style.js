@@ -1,47 +1,46 @@
-import browserSync from 'browser-sync';
 import gulp from 'gulp';
 import gulpAutoprefixer from 'gulp-autoprefixer';
-import gulpFilter from 'gulp-filter';
-import gulpMinifyCss from 'gulp-minify-css';
-import gulpSourcemaps from 'gulp-sourcemaps';
-import gulpSass from 'gulp-sass';
-import path from 'path';
 import gulpConcat from 'gulp-concat';
+import gulpMinifyCss from 'gulp-minify-css';
+import gulpSass from 'gulp-sass';
+import gulpSourcemaps from 'gulp-sourcemaps';
 
-import conf from './config';
+import path from 'path';
 
+import config from './config';
+
+/**
+ * Compile stylesheets and places them into serve folder. Each stylesheet file is compiled separately
+ */
 gulp.task('styles', function () {
     let sassOptions = {
         style: 'expanded',
     };
 
-    let cssFilter = gulpFilter('**/*.css', {restore: true});
-
-    return gulp.src(path.join(conf.paths.frontendSrc, '**/*.scss'))
+    return gulp.src(path.join(config.paths.frontendSrc, '**/*.scss'))
+        .pipe(gulpSourcemaps.init())        // mark the init point of source map
         .pipe(gulpSass(sassOptions))
-        .pipe(cssFilter)
-        .pipe(gulpSourcemaps.init({loadMaps: true}))
         .pipe(gulpAutoprefixer())
-        .pipe(gulpSourcemaps.write())
-        .pipe(cssFilter.restore)
-        .pipe(gulp.dest(conf.paths.serve))
-        // If BrowserSync is running, inform it that styles have changed.
-        .pipe(browserSync.stream());
+        .pipe(gulpSourcemaps.write('.'))    // end of source map
+        .pipe(gulp.dest(config.paths.serve))
 });
 
 /**
- * Compiles stylesheets and places them into the prod tmp folder. Styles are compiled and minified
- * into a single file.
+ * Compile stylesheets and places them into the prod tmp folder. Stylesheets are compiled and minified
+ * into a single file
  */
-gulp.task('styles:prod', function () {
+gulp.task('style:prod', function () {
     let sassOptions = {
         style: 'compressed',
     };
 
-    return gulp.src(path.join(conf.paths.frontendSrc, '**/*.scss'))
+    return gulp.src(path.join(config.paths.frontendSrc, '**/*.scss'))
         .pipe(gulpSass(sassOptions))
         .pipe(gulpAutoprefixer())
         .pipe(gulpConcat('app.css'))
-        .pipe(gulpMinifyCss())
-        .pipe(gulp.dest(conf.paths.prodTmp))
+        .pipe(gulpMinifyCss({
+            // Do not process @import statements. This breaks Angular Material font icons.
+            processImport: false,
+        }))
+        .pipe(gulp.dest(config.paths.prodTmp));
 });
