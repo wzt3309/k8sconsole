@@ -4,7 +4,7 @@ import gulpInject from 'gulp-inject';
 import path from 'path';
 import wiredep from 'wiredep';
 
-import config from 'config';
+import config from './config';
 
 function createIndexFile(indexPath) {
     let injectStyles = gulp.src(path.join(indexPath, '**/*.css'), {read: false});
