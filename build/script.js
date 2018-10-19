@@ -244,7 +244,7 @@ gulp.task('scripts:prod', ['angular-templates', 'generate-xtbs'], function(doneF
  *  * partials/path/foo.html.js - JS module file
  *  * messages_for_extraction/path/foo.html.js - used to extract messages
  */
-gulp.task('angular-templates', function() {
+gulp.task('angular-templates',  ['buildExistingI18nCache'], function() {
     return gulp.src(path.join(config.paths.frontendSrc, '**/!(index).html'))
         .pipe(gulpHtmlmin({
             removeComments: true,
