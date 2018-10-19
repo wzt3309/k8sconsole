@@ -50,15 +50,19 @@ function browserSyncInit(baseDir) {
         selector: '[ng-app]',
     }));
 
-    let config = {
+
+    let conf = {
         browser: [],        // Needed so that the browser does not auto-launch.
         startPath: '/',
         server: {
             baseDir: baseDir,
+            routes: {
+                '/node_modules': config.paths.nodeModules,
+            },
         },
     };
 
-    browserSyncInstance.init(config);
+    browserSyncInstance.init(conf);
 }
 
 /**
@@ -140,7 +144,9 @@ gulp.task('kill-backend', function (doneFn) {
 });
 
 
-// Watch for changes in source files and run gulp tasks to rebuild them.
+/**
+ * Watch for changes in source files and run gulp tasks to rebuild them.
+ */
 gulp.task('watch', ['index'], function () {
     gulp.watch([path.join(config.paths.frontendSrc, 'index.html'), 'package.json'], ['index']);
 
@@ -158,6 +164,7 @@ gulp.task('watch', ['index'], function () {
             }
     });
 
-    gulp.watch([path.join(config.paths.frontendSrc, '**/*/js')], ['scripts']);
+    gulp.watch([path.join(config.paths.frontendSrc, '**/*/js')], ['scripts-watch']);
+    gulp.watch(path.join(config.paths.frontendSrc, '**/*.html'), ['angular-templates']);
     gulp.watch(path.join(config.paths.backendSrc, '**/*.go'), ['spawn-backend']);
 });
