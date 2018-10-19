@@ -68,7 +68,7 @@ function checkPrerequisites() {
 function checkGo() {
     let deferred = q.defer();
     child.exec(
-        'go version',
+        'which go',
         {
             env: env,
         },
@@ -91,7 +91,7 @@ function checkGo() {
 function checkGoVersion() {
     let deferred = q.defer();
     child.exec(
-        'which go',
+        'go version',
         {
             env: env,
         },
