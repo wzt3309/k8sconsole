@@ -15,7 +15,7 @@ var (
 func main() {
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
-	glog.Info("Starting HTTP server on port ", *port)
+	glog.Info("Starting HTTP server on the port ", *port)
 	defer glog.Flush()
 
 	http.Handle("/", http.FileServer(http.Dir("./")))
