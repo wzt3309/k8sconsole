@@ -1,17 +1,14 @@
 export class MainController {
-    constructor() {
-        /** @export */
-        this.testValue = 7;
-    }
-
     /**
      * @param {!angular.$timeout} $timeout
      * @ngInject
-     * @export
      */
-    activate($timeout) {
+    constructor($timeout) {
+        /** @export */
+        this.testValue = 9;
+
         $timeout(() => {
             this.testValue = 8;
-        }, 4000);
+        }, 4000)
     }
 }

@@ -1,22 +1,9 @@
 /**
- * @param {!ngNewRouter.$componentLoaderProvider} $componentLoaderProvider
+ * Global route configuration for the application.
+ *
+ * @param {!ui.router.$urlRouterProvider} $urlRouterProvider
  * @ngInject
  */
-export function routerConfig($componentLoaderProvider) {
-    $componentLoaderProvider.setTemplateMapping(function(name) {
-        return `${name}/${name}.html`;
-    });
-}
-
-
-export class RouterController {
-    /**
-     * @param {!ngNewRouter.$router} $router
-     * @ngInject
-     */
-    constructor($router) {
-        $router.config([
-            {path: '/', component: 'main'},
-        ]);
-    }
+export default function routerConfig($urlRouterProvider) {
+    $urlRouterProvider.otherwise('');
 }
