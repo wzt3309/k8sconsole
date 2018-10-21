@@ -78,7 +78,8 @@ export default function (conf) {
         },
     };
 
-    configuration.browsers = ['Chrome'];
+    // for remote linux server
+    configuration.browsers = ['PhantomJS'];
 
     // Convert all JS code written ES6 with modules to ES5 bundles that browsers can digest.
     configuration.preprocessors[path.join(config.paths.frontendTest, '**/*.js')] =
