@@ -1,7 +1,7 @@
-import path from 'path'
+import path from 'path';
 import wiredep from 'wiredep';
 
-import config from './config'
+import config from './config';
 
 /**
  * Returns an array of files required by Karma to run the tests.

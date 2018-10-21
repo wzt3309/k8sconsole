@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'path';
 
 /**
  * Load the i18n and l10n configuration. Used when dashboard is built in production.

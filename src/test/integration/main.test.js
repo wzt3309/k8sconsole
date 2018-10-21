@@ -2,7 +2,7 @@ import {MainPage} from './main.po';
 
 
 describe('The main view', function () {
-    var page;
+    let page;
 
     beforeEach(function () {
         browser.get('/index.html');

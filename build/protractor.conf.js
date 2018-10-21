@@ -1,6 +1,6 @@
 require('babel-core/register');
-var conf = require('./config');
-var path = require('path');
+let conf = require('./config');
+let path = require('path');
 
 
 exports.config = {
