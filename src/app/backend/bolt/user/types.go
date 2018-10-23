@@ -1,4 +1,4 @@
-package api
+package user
 
 const (
 	// BucketName represents the name of the bucket where Service store data
@@ -9,10 +9,10 @@ type (
 
 	// User represents a user account
 	User struct {
-			ID UserID `json:"Id"`
-			Username string `json:"Username"`
-			Password string `json:"Password,omitempty"`
-			Role UserRole `json:"Role"`
+		ID       UserID   `json:"Id"`
+		Username string   `json:"Username"`
+		Password string   `json:"Password,omitempty"`
+		Role     UserRole `json:"Role"`
 	}
 
 	// UserID represents a user identifier
