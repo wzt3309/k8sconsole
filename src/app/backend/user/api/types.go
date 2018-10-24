@@ -1,9 +1,4 @@
-package user
-
-const (
-	// BucketName represents the name of the bucket where Service store data
-	BucketName = "users"
-)
+package api
 
 type (
 
@@ -20,4 +15,15 @@ type (
 
 	// UserRole represents the role of a user. It can be either an admin or a regular user
 	UserRole int
+
+	// UserService is used for user manager
+	UserService interface {
+		User(UserID) (*User, error)
+		UserByUsername(string) (*User, error)
+		Users() ([]User, error)
+		UsersByRole(UserRole) ([]User, error)
+		UpdateUser(UserID, *User) error
+		CreateUser(*User) error
+		DeleteUser(UserID) error
+	}
 )

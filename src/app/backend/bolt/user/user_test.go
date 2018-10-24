@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/boltdb/bolt"
 	"github.com/stretchr/testify/assert"
+	userApi "github.com/wzt3309/k8sconsole/src/app/backend/user/api"
 	"log"
 	"os"
 	"path"
@@ -33,7 +34,7 @@ func init() {
 }
 
 func TestNewService(t *testing.T) {
-	_, err := NewService(db)
+	_, err := NewUserService(db)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,15 +44,15 @@ func TestNewService(t *testing.T) {
 func TestService_CreateUser(t *testing.T) {
 	as := assert.New(t)
 
-	svc, err := NewService(db)
+	svc, err := NewUserService(db)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	expected := &User{
+	expected := &userApi.User{
 		Username: "test01",
 		Password: "123456",
-		Role:     UserRole(0),
+		Role:     userApi.UserRole(0),
 	}
 	err = svc.CreateUser(expected)
 	if err != nil {
@@ -71,15 +72,15 @@ func TestService_CreateUser(t *testing.T) {
 func TestService_UpdateUser(t *testing.T) {
 	as := assert.New(t)
 
-	svc, err := NewService(db)
+	svc, err := NewUserService(db)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	user := &User{
+	user := &userApi.User{
 		Username: "test01",
 		Password: "123456",
-		Role:     UserRole(0),
+		Role:     userApi.UserRole(0),
 	}
 	err = svc.CreateUser(user)
 	if err != nil {

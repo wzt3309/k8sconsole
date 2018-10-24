@@ -5,28 +5,35 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/wzt3309/k8sconsole/src/app/backend/bolt/internal"
 	"github.com/wzt3309/k8sconsole/src/app/backend/errors"
+	userApi "github.com/wzt3309/k8sconsole/src/app/backend/user/api"
 )
 
-// Service represents a service to manage user accounts
-type Service struct {
+const (
+	// BucketName represents the name of the bucket where Service store data
+	BucketName = "users"
+)
+
+// Implements UserService interface.
+// Use boltdb to store user information
+type service struct {
 	db *bolt.DB
 }
 
-// NewService create a new instance of a service
-func NewService(db *bolt.DB) (*Service, error) {
+// NewUserService create a new instance of a service
+func NewUserService(db *bolt.DB) (userApi.UserService, error) {
 	err := internal.CreateBucket(db, BucketName)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Service{
+	return &service{
 		db: db,
 	}, nil
 }
 
 // User returns a user by ID
-func (self *Service) User(ID UserID) (*User, error) {
-	var user User
+func (self *service) User(ID userApi.UserID) (*userApi.User, error) {
+	var user userApi.User
 	identifier := internal.Itob(int(ID))
 
 	err := internal.GetObject(self.db, BucketName, identifier, &user)
@@ -38,15 +45,15 @@ func (self *Service) User(ID UserID) (*User, error) {
 }
 
 // UserByUsername returns a user by username.
-func (self *Service) UserByUsername(Username string) (*User, error) {
-	var user *User
+func (self *service) UserByUsername(Username string) (*userApi.User, error) {
+	var user *userApi.User
 
 	err := self.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(BucketName))
 		cursor := bucket.Cursor()
 
 		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
-			var u User
+			var u userApi.User
 			err := json.Unmarshal(v, &u)
 			if err != nil {
 				return err
@@ -68,15 +75,15 @@ func (self *Service) UserByUsername(Username string) (*User, error) {
 }
 
 // Users return a slice containing all the users.
-func (self *Service) Users() ([]User, error) {
-	var users = make([]User, 0)
+func (self *service) Users() ([]userApi.User, error) {
+	var users = make([]userApi.User, 0)
 
 	err := self.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(BucketName))
 		cursor := bucket.Cursor()
 
 		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
-			var user User
+			var user userApi.User
 
 			err := json.Unmarshal(v, &user)
 			if err != nil {
@@ -92,15 +99,15 @@ func (self *Service) Users() ([]User, error) {
 }
 
 // UsersByRole return an slice contains all the users with the specified role.
-func (self *Service) UsersByRole(role UserRole) ([]User, error) {
-	var users = make([]User, 0)
+func (self *service) UsersByRole(role userApi.UserRole) ([]userApi.User, error) {
+	var users = make([]userApi.User, 0)
 
 	err := self.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(BucketName))
 		cursor := bucket.Cursor()
 
 		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
-			var user User
+			var user userApi.User
 
 			err := json.Unmarshal(v, &user)
 			if err != nil {
@@ -119,13 +126,13 @@ func (self *Service) UsersByRole(role UserRole) ([]User, error) {
 }
 
 // UpdateUser update old user
-func (self *Service) UpdateUser(ID UserID, user *User) error {
+func (self *service) UpdateUser(ID userApi.UserID, user *userApi.User) error {
 	identifier := internal.Itob(int(ID))
 	return internal.UpdateObject(self.db, BucketName, identifier, user)
 }
 
 // CreateUser creates a new user.
-func (self *Service) CreateUser(user *User) error {
+func (self *service) CreateUser(user *userApi.User) error {
 	return self.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(BucketName))
 
@@ -133,7 +140,7 @@ func (self *Service) CreateUser(user *User) error {
 		if err != nil {
 			return err
 		}
-		user.ID = UserID(id)
+		user.ID = userApi.UserID(id)
 
 		data, err := json.Marshal(user)
 		if err != nil {
@@ -145,7 +152,7 @@ func (self *Service) CreateUser(user *User) error {
 }
 
 // DeleteUser deletes a user.
-func (self *Service) DeleteUser(ID UserID) error {
+func (self *service) DeleteUser(ID userApi.UserID) error {
 	identifier := internal.Itob(int(ID))
 	return internal.DeleteObject(self.db, BucketName, identifier)
 }
