@@ -41,6 +41,18 @@ func TestNewService(t *testing.T) {
 	defer db.Close()
 }
 
+func TestService_Users(t *testing.T) {
+	var users []api.User
+	svc, err := NewUserService(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	users, err = svc.Users()
+
+	t.Log(users)
+}
+
 func TestService_CreateUser(t *testing.T) {
 	as := assert.New(t)
 
