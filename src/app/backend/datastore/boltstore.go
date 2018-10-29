@@ -60,7 +60,7 @@ func (self *Store) Close() error {
 
 // Initializes the services of store
 func (self *Store) initServices() error {
-	userService, err := user.NewService(self.db)
+	userService, err := user.NewUserService(self.db)
 	if err != nil {
 		return err
 	}
