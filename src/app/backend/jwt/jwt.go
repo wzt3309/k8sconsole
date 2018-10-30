@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Service represents a service for JWTService
+// service represents a service for JWTService
 type Service struct {
 	secret []byte
 }

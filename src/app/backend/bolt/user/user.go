@@ -3,13 +3,13 @@ package user
 import (
 	"encoding/json"
 	"github.com/boltdb/bolt"
-	api "github.com/wzt3309/k8sconsole/src/app/backend/api"
+	"github.com/wzt3309/k8sconsole/src/app/backend/api"
 	"github.com/wzt3309/k8sconsole/src/app/backend/bolt/internal"
 	"github.com/wzt3309/k8sconsole/src/app/backend/errors"
 )
 
 const (
-	// BucketName represents the name of the bucket where Service store data
+	// BucketName represents the name of the bucket where service store data
 	BucketName = "users"
 )
 

@@ -8,10 +8,20 @@ const (
 	ErrAuthDisabled = Error("Authentication is disabled")
 )
 
+// User errors.
+const (
+	ErrUserAlreadyExists = Error("User already exists")
+)
+
 // JWT errors.
 const (
 	ErrSecretGeneration = Error("Unable to generate secret key")
 	ErrInvalidJWTToken  = Error("Invalid JWT token")
+)
+
+// Crypto errors.
+const (
+	ErrCryptoHashFailure = Error("Unable to hash data")
 )
 
 type Error string

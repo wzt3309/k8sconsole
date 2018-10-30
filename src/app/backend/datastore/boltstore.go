@@ -2,8 +2,8 @@ package datastore
 
 import (
 	"github.com/boltdb/bolt"
-	"github.com/wzt3309/k8sconsole/src/app/backend/bolt/user"
-	"github.com/wzt3309/k8sconsole/src/app/backend/file"
+	"github.com/wzt3309/k8sconsole/src/app/backend/api"
+	boltUser "github.com/wzt3309/k8sconsole/src/app/backend/bolt/user"
 	"path"
 	"time"
 )
@@ -12,18 +12,18 @@ const (
 	databaseFileName = "k8sconsole.db"
 )
 
-// Store defines the implementation of datastore.Datastore
+// BoltDBStore defines the implementation of datastore.Datastore
 // using boltdb as the storage system
-type Store struct {
+type BoltDBStore struct {
 	path        string
 	db          *bolt.DB
-	FileService file.FileService
-	UserService *user.Service
+	FileService api.FileService
+	UserService api.UserService
 }
 
-// NewStore initializes a new store and the associated services
-func NewStore(storePath string, fileService file.FileService) (*Store, error) {
-	store := &Store{
+// NewBoltDBStore initializes a new store and the associated services
+func NewBoltDBStore(storePath string, fileService api.FileService) (*BoltDBStore, error) {
+	store := &BoltDBStore{
 		path:        storePath,
 		FileService: fileService,
 	}
@@ -32,7 +32,7 @@ func NewStore(storePath string, fileService file.FileService) (*Store, error) {
 }
 
 // Opens and initializes the boltdb database.
-func (self *Store) Open() error {
+func (self *BoltDBStore) Open() error {
 	databasePath := path.Join(self.path, databaseFileName)
 
 	db, err := bolt.Open(databasePath, 0600, &bolt.Options{Timeout: 1 * time.Second})
@@ -46,21 +46,27 @@ func (self *Store) Open() error {
 
 // Initializes the store
 // TODO(wzt3309) This method does nothing now
-func (self *Store) Init() error {
+func (self *BoltDBStore) Init() error {
 	return nil
 }
 
 // Closes the boltdb database
-func (self *Store) Close() error {
+func (self *BoltDBStore) Close() error {
 	if self.db != nil {
 		return self.db.Close()
 	}
 	return nil
 }
 
+func (self *BoltDBStore) GetUserService() api.UserService {
+	return self.UserService
+}
+
 // Initializes the services of store
-func (self *Store) initServices() error {
-	userService, err := user.NewUserService(self.db)
+func (self *BoltDBStore) initServices() error {
+
+	// init UserService
+	userService, err := boltUser.NewUserService(self.db)
 	if err != nil {
 		return err
 	}

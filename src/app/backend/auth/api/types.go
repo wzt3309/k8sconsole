@@ -3,8 +3,8 @@ package api
 // FrontendAuthPayload contains 'username' and 'password' of user.
 // It uses struct field tags to validate fields by "govalidator".
 type FrontendAuthPayload struct {
-	Username string `valid:"runelength(2|20),required"`
-	Password string `valid:"runelength(6|20),required"`
+	Username string `valid:"required"`
+	Password string `valid:"required"`
 }
 
 // FrontendAuthResponse returned from our backend as a response for login request.

@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/boltdb/bolt"
 	"github.com/stretchr/testify/assert"
-	api "github.com/wzt3309/k8sconsole/src/app/backend/api"
+	"github.com/wzt3309/k8sconsole/src/app/backend/api"
 	"log"
 	"os"
 	"path"
