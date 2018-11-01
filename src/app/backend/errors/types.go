@@ -1,5 +1,7 @@
 package errors
 
+import "github.com/emicklei/go-restful"
+
 // General errors.
 const (
 	ErrUnauthorized   = Error("Unauthorized")
@@ -22,6 +24,24 @@ const (
 // Crypto errors.
 const (
 	ErrCryptoHashFailure = Error("Unable to hash data")
+)
+
+// Handle restful api route function error
+type (
+	// LoggerHandler defines a route function that includes a HandlerError return pointer
+	LoggerHandler func(*restful.Request, *restful.Response) *HandlerError
+
+	// HandlerError represents an error raised inside a route function
+	HandlerError struct {
+		StatusCode int
+		Message    string
+		Err        error
+	}
+
+	errorResponse struct {
+		Err     string `json:"err,omitempty"`
+		Details string `json:"details,omitempty"`
+	}
 )
 
 type Error string

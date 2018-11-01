@@ -1,7 +1,7 @@
 package auth
 
 import (
-	restful "github.com/emicklei/go-restful"
+	"github.com/emicklei/go-restful"
 	authApi "github.com/wzt3309/k8sconsole/src/app/backend/auth/api"
 	"github.com/wzt3309/k8sconsole/src/app/backend/errors"
 	"net/http"
