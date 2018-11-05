@@ -85,6 +85,14 @@ type TokenManager interface {
 	SetTokenTTL(time.Duration)
 }
 
+// Authenticator represents authentication methods, Currently supported types are:
+//	- Basic 			- Username and password based authentication
+//	- Token 			- Any bearer token accepted by apiserver
+//	- kubeConfig 	- Authenticates user based on kubeconfig file.
+type Authenticator interface {
+	GetAuthInfo() (api.AuthInfo, error)
+}
+
 // LoginSpec is extracted from request coming from k8sconsole frontend during loging request. It contains all
 // information required to authenticate user.
 type LoginSpec struct {
