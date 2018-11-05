@@ -27,6 +27,30 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:b8fa1ff0fc20983395978b3f771bb10438accbfe19326b02e236c1d4bf1c91b2"
+  name = "golang.org/x/crypto"
+  packages = [
+    "ed25519",
+    "ed25519/internal/edwards25519",
+    "pbkdf2",
+  ]
+  pruneopts = "UT"
+  revision = "4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06"
+
+[[projects]]
+  digest = "1:26a278a34e30cc8fbd09d5f7474488ac4cbad325c2b592b30e76e5d7d2fc1f10"
+  name = "gopkg.in/square/go-jose.v2"
+  packages = [
+    ".",
+    "cipher",
+    "json",
+  ]
+  pruneopts = "UT"
+  revision = "ef984e69dd356202fd4e4910d4d9c24468bdf0b8"
+  version = "v2.1.9"
+
+[[projects]]
+  branch = "master"
   digest = "1:3aee5857384a936eef3334073767f2fa91475d2537265a075b065c790c7efb76"
   name = "k8s.io/apimachinery"
   packages = [
@@ -58,6 +82,7 @@
   input-imports = [
     "github.com/golang/glog",
     "github.com/spf13/pflag",
+    "gopkg.in/square/go-jose.v2",
     "k8s.io/client-go/tools/clientcmd/api",
   ]
   solver-name = "gps-cdcl"
