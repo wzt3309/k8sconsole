@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:bbadccf3d3317ea03c0dac0b45b673b4b397c8f91a1d2eff550a3c51c4ad770e"
+  name = "github.com/gogo/protobuf"
+  packages = ["proto"]
+  pruneopts = "UT"
+  revision = "636bf0302bc95575d69441b25a2603156ffdddf1"
+  version = "v1.1.1"
+
+[[projects]]
   branch = "master"
   digest = "1:1ba1d79f2810270045c328ae5d674321db34e3aae468eb4233883b473c5c0467"
   name = "github.com/golang/glog"
@@ -17,12 +25,40 @@
   revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
   version = "v1.0.3"
 
+[[projects]]
+  branch = "master"
+  digest = "1:3aee5857384a936eef3334073767f2fa91475d2537265a075b065c790c7efb76"
+  name = "k8s.io/apimachinery"
+  packages = [
+    "pkg/conversion",
+    "pkg/conversion/queryparams",
+    "pkg/runtime",
+    "pkg/runtime/schema",
+    "pkg/util/errors",
+    "pkg/util/json",
+    "pkg/util/naming",
+    "pkg/util/runtime",
+    "pkg/util/sets",
+    "third_party/forked/golang/reflect",
+  ]
+  pruneopts = "UT"
+  revision = "0aa9751e8aaff1b6afa1ca5270d8e280878797e4"
+
+[[projects]]
+  digest = "1:0c7da7e52439a25eee2c1fdff68f67b9cb064e5f4d30fbe1020963721562d26d"
+  name = "k8s.io/client-go"
+  packages = ["tools/clientcmd/api"]
+  pruneopts = "UT"
+  revision = "989be4278f353e42f26c416c53757d16fcff77db"
+  version = "kubernetes-1.10.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/golang/glog",
     "github.com/spf13/pflag",
+    "k8s.io/client-go/tools/clientcmd/api",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
