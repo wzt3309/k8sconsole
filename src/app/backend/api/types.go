@@ -6,6 +6,12 @@ const (
 	NormalUserRole
 )
 
+const (
+	_ ResourceAccessLevel = iota
+	// ReadWriteAccessLevel represents an access level with read-write permissions on a resource
+	ReadWriteAccessLevel
+)
+
 // APIs about user management
 type (
 
@@ -32,6 +38,55 @@ type (
 		UpdateUser(UserID, *User) error
 		CreateUser(*User) error
 		DeleteUser(UserID) error
+	}
+)
+
+// APIs about team
+type (
+	// Team represents a list of user accounts
+	Team struct {
+		ID   TeamID `json:"Id"`
+		Name string `json:"Name"`
+	}
+
+	// TeamID represents a team identifier
+	TeamID int
+
+	// TeamMembership represents a membership association between a user and a team
+	TeamMembership struct {
+		ID     TeamMembershipID `json:"Id"`
+		UserID UserID           `json:"UserID"`
+		TeamID TeamID           `json:"TeamID"`
+		Role   MembershipRole   `json:"Role"`
+	}
+
+	// TeamMembershipID represents a team membership identifier
+	TeamMembershipID int
+
+	// MembershipRole represents the role of a user within a team
+	MembershipRole int
+
+	// TeamService represents a service for managing user data
+	TeamService interface {
+		Team(ID TeamID) (*Team, error)
+		TeamByName(name string) (*Team, error)
+		Teams() ([]Team, error)
+		CreateTeam(team *Team) error
+		UpdateTeam(ID TeamID, team *Team) error
+		DeleteTeam(ID TeamID) error
+	}
+
+	// TeamMembershipService represents a service for managing team membership data
+	TeamMembershipService interface {
+		TeamMembership(ID TeamMembershipID) (*TeamMembership, error)
+		TeamMemberships() ([]TeamMembership, error)
+		TeamMembershipsByUserID(userID UserID) ([]TeamMembership, error)
+		TeamMembershipsByTeamID(teamID TeamID) ([]TeamMembership, error)
+		CreateTeamMembership(membership *TeamMembership) error
+		UpdateTeamMembership(ID TeamMembershipID, membership *TeamMembership) error
+		DeleteTeamMembership(ID TeamMembershipID) error
+		DeleteTeamMembershipByUserID(userID UserID) error
+		DeleteTeamMembershipByTeamID(teamID TeamID) error
 	}
 )
 
@@ -74,5 +129,41 @@ type (
 		Init() error
 		Close() error
 		GetUserService() UserService
+	}
+)
+
+// Resource control
+type (
+
+	// ResourceControl represent a reference to a k8s resource with specific access controls
+	ResourceControl struct {
+		ID             ResourceControlID    `json:"Id"`
+		ResourceID     string               `json:"ResourceId"`
+		SubResourceIDs []string             `json:"SubResourceIds"`
+		Type           ResourceControlType  `json:"Type"`
+		UserAccesses   []UserResourceAccess `json:"UserAccesses"`
+		TeamAccesses   []TeamResourceAccess `json:"TeamAccesses"`
+		Public         bool                 `json:"Public"`
+	}
+
+	// ResourceControlID represents a resource control identifier
+	ResourceControlID int
+
+	// ResourceControlType represents the type of resource associated to the resource control (volume, pod, service...)
+	ResourceControlType int
+
+	// ResourceAccessLevel represents the level of control associated to a resource
+	ResourceAccessLevel int
+
+	// UserResourceAccess represents the level of control on a resource for a specific user
+	UserResourceAccess struct {
+		UserID      UserID              `json:"UserId"`
+		AccessLevel ResourceAccessLevel `json:"AccessLevel"`
+	}
+
+	// TeamResourceAccess represents the level of control on a resource for a specific team
+	TeamResourceAccess struct {
+		TeamID      TeamID              `json:"TeamId"`
+		AccessLevel ResourceAccessLevel `json:"AccessLevel"`
 	}
 )
