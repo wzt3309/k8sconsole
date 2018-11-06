@@ -122,7 +122,7 @@ func (self *jweTokenManager) validate(jweToken string) (*jose.JSONWebEncryption,
 		}
 
 		if self.isExpired(aad[BOR], aad[EXP]) {
-			return nil, errors.New("Token is expired")
+			return nil, errors.New("Token is expired.")
 		}
 	}
 
