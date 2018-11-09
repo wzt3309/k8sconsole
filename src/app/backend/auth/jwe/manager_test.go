@@ -3,6 +3,7 @@ package jwe
 import (
 	"errors"
 	authApi "github.com/wzt3309/k8sconsole/src/app/backend/auth/api"
+	kcErrors "github.com/wzt3309/k8sconsole/src/app/backend/errors"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"reflect"
 	"testing"
@@ -105,7 +106,7 @@ func TestJweTokenManager_Refresh(t *testing.T) {
 			authInfo:    api.AuthInfo{Token: "test-token"},
 			shouldSleep: true,
 			expected:    false,
-			expectedErr: errors.New("Token is expired."),
+			expectedErr: errors.New(kcErrors.MSG_TOKEN_EXPIRED_ERROR),
 		},
 	}
 

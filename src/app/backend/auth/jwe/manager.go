@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	authApi "github.com/wzt3309/k8sconsole/src/app/backend/auth/api"
+	kcErrors "github.com/wzt3309/k8sconsole/src/app/backend/errors"
 	"gopkg.in/square/go-jose.v2"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"time"
@@ -122,7 +123,7 @@ func (self *jweTokenManager) validate(jweToken string) (*jose.JSONWebEncryption,
 		}
 
 		if self.isExpired(aad[BOR], aad[EXP]) {
-			return nil, errors.New("Token is expired.")
+			return nil, errors.New(kcErrors.MSG_TOKEN_EXPIRED_ERROR)
 		}
 	}
 
