@@ -6,6 +6,12 @@ const (
 	ResourceKindConfigMap  = "configmap"
 	ResourceKindDaemonSet  = "daemonset"
 	ResourceKindDeployment = "deployment"
+	ResourceKindNamespace  = "namespace"
+	ResourceKindNode       = "node"
+	ResourceKindPod        = "pod"
+	ResourceKindReplicaSet = "replicaset"
+	ResourceKindSecret     = "secret"
+	ResourceKindService    = "service"
 )
 
 // ClientType represents type of client that is used to perform generic operations on resources.
@@ -16,7 +22,7 @@ type ClientType string
 // List of client types.
 // TODO(wzt3309) Need to add more client types
 const (
-	ClientTypeDefailt         = "restclient"
+	ClientTypeDefault         = "restclient"
 	ClientTypeExtensionClient = "extensionclient"
 )
 
@@ -30,7 +36,13 @@ var KindToAPIMapping = map[string]struct {
 	// Is this object global scoped (not below a namespace), i.e. 'kubectl get node'
 	Namespaced bool
 }{
-	ResourceKindConfigMap:  {"configmaps", ClientTypeDefailt, true},
+	ResourceKindConfigMap:  {"configmaps", ClientTypeDefault, true},
 	ResourceKindDaemonSet:  {"daemonsets", ClientTypeExtensionClient, true},
 	ResourceKindDeployment: {"deployments", ClientTypeExtensionClient, true},
+	ResourceKindNamespace:  {"namespaces", ClientTypeDefault, false},
+	ResourceKindNode:       {"nodes", ClientTypeDefault, false},
+	ResourceKindPod:        {"pods", ClientTypeDefault, true},
+	ResourceKindReplicaSet: {"replicasets", ClientTypeExtensionClient, true},
+	ResourceKindSecret:     {"secrets", ClientTypeDefault, true},
+	ResourceKindService:    {"services", ClientTypeDefault, true},
 }
