@@ -23,9 +23,9 @@ func (self AuthenticationModes) IsEnabled(mode AuthenticationMode) bool {
 	return exists
 }
 
-// AsArrays returns slice of auth modes supported by k8sconsole.
+// Array returns slice of auth modes supported by k8sconsole.
 // The return value will be empty ([] not nil) if no mode supported.
-func (self AuthenticationModes) AsArrays() []AuthenticationMode {
+func (self AuthenticationModes) Array() []AuthenticationMode {
 	var modes []AuthenticationMode
 	for mode := range self {
 		modes = append(modes, mode)
@@ -107,6 +107,12 @@ type LoginSpec struct {
 	KubeConfig string `json:"kubeConfig"`
 }
 
+// TokenRefreshSpec contains token that is required by token refresh operation.
+type TokenRefreshSpec struct {
+	// JWEToken is a token generated during login request that contains AuthInfo data in the payload.
+	JWEToken string `json:"jweToken"`
+}
+
 // AuthResponse represents the response returned from k8sconsole backend for login requests. It contains generated
 // JWEToken and a list of non-critical errors such as 'Failed authentication' to tell the frontend what unexpected
 // happened during login request.
@@ -115,12 +121,6 @@ type AuthResponse struct {
 	JWEToken string `json:"jweToken"`
 	// Errors are a list of non-critical errors that happened during login request.
 	Errors []error `json:"errors"`
-}
-
-// TokenRefreshSpec contains token that is required by token refresh operation.
-type TokenRefreshSpec struct {
-	// JWEToken is a token generated during login request that contains AuthInfo data in the payload.
-	JWEToken string `json:"jweToken"`
 }
 
 // LoginModesResponse contains list of auth modes supported by k8sconsole
