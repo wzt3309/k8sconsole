@@ -158,12 +158,13 @@ func (self *clientManager) HasAccess(authInfo api.AuthInfo) error {
 
 // VerberClient returns new verber client
 func (self *clientManager) VerberClient(req *restful.Request) (clientApi.ResourceVerber, error) {
-	_, err := self.Client(req)
+	client, err := self.Client(req)
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, nil
+	return NewResourceVerber(client.CoreV1().RESTClient(),
+		client.ExtensionsV1beta1().RESTClient()), nil
 }
 
 // SetTokenManager sets the token manager that will be used for token decryption.
