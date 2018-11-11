@@ -10,10 +10,10 @@ import (
 
 // Implements AuthManager interface
 type authManager struct {
-	tokenManager              authApi.TokenManager
-	clientManager             clientApi.ClientManager
-	authenticationModes       authApi.AuthenticationModes
-	authenticationSkippedable bool
+	tokenManager              	authApi.TokenManager
+	clientManager             	clientApi.ClientManager
+	authenticationModes       	authApi.AuthenticationModes
+	authenticationSkippable 		bool
 }
 
 // Login implement AuthManager
@@ -54,7 +54,7 @@ func (self authManager) AuthenticationModes() []authApi.AuthenticationMode {
 
 // AuthenticationSkippable implements AuthManager
 func (self authManager) AuthenticationSkippable() bool {
-	return self.authenticationSkippedable
+	return self.authenticationSkippable
 }
 
 func (self authManager) getAuthenticator(spec *authApi.LoginSpec) (authApi.Authenticator, error) {
@@ -76,4 +76,14 @@ func (self authManager) getAuthenticator(spec *authApi.LoginSpec) (authApi.Authe
 // by k8s apiserver
 func (self authManager) healthCheck(authInfo api.AuthInfo) error {
 	return self.clientManager.HasAccess(authInfo)
+}
+
+func NewAuthManager(clientManager clientApi.ClientManager, tokenManager authApi.TokenManager,
+	authenticationModes authApi.AuthenticationModes, authenticationSkippable bool) authApi.AuthManager {
+	return &authManager{
+		tokenManager:            tokenManager,
+		clientManager:           clientManager,
+		authenticationModes:     authenticationModes,
+		authenticationSkippable: authenticationSkippable,
+	}
 }
