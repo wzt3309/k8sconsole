@@ -11,6 +11,9 @@ type ResourceChannels struct {
 	// List and error channels to Pods.
 	PodList PodListChannel
 
+	// List and error channels to Events.
+	EventList EventListChannel
+
 	// List and error channels to Namespace.
 	NamespaceList NamespaceListChannel
 }
@@ -52,6 +55,43 @@ func GetPodListChannelWithOptions(client client.Interface, nsQuery *NamespaceQue
 		}
 	}()
 
+	return channel
+}
+
+type EventListChannel struct {
+	List chan *v1.EventList
+	Error chan error
+}
+
+// GetEventListChannel returns a pair of channels to an Event list and errors that both must be read
+// numReads times.
+func GetEventListChannel(client client.Interface,
+	nsQuery *NamespaceQuery, numReads int) EventListChannel {
+	return GetEventListChannelWithOptions(client, nsQuery, api.ListEverything, numReads)
+}
+
+// GetEventListChannelWithOptions is GetEventListChannel plus list options.
+func GetEventListChannelWithOptions(client client.Interface,
+	nsQuery *NamespaceQuery, options metaV1.ListOptions, numReads int) EventListChannel {
+	channel := EventListChannel{
+		List: make(chan *v1.EventList, numReads),
+		Error: make(chan error, numReads),
+	}
+
+	go func() {
+		list, err := client.CoreV1().Events(nsQuery.ToRequestParam()).List(options)
+		var filteredItems []v1.Event
+		for _, item := range list.Items {
+			if nsQuery.Matches(item.ObjectMeta.Namespace) {
+				filteredItems = append(filteredItems, item)
+			}
+		}
+		list.Items = filteredItems
+		for i := 0; i < numReads; i++ {
+			channel.List <- list
+			channel.Error <- err
+		}
+	}()
 	return channel
 }
 
