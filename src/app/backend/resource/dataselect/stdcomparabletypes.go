@@ -1,6 +1,9 @@
 package dataselect
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 type StdComparableInt int
 
@@ -23,6 +26,17 @@ func (self StdComparableString) Compare(otherV ComparableValue) int {
 func (self StdComparableString) Contains(otherV ComparableValue) bool {
 	other := otherV.(StdComparableString)
 	return strings.Contains(string(self), string(other))
+}
+
+type StdComparableTime time.Time
+
+func (self StdComparableTime) Compare(otherV ComparableValue) int {
+	other := otherV.(StdComparableTime)
+	return ints64Compare(time.Time(self).Unix(), time.Time(other).Unix())
+}
+
+func (self StdComparableTime) Contains(otherV ComparableValue) bool {
+	return self.Compare(otherV) == 0
 }
 
 func intsCompare(a, b int) int {
