@@ -136,7 +136,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:92e752ba5facbe27563e7fdbac87ac83c85af77228dffd792e237c086b56a00e"
+  digest = "1:d77c002fb1574dae1ff8b13842efa04495a8dadf6217cfaa6aa1c5dfb7249ccb"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -144,6 +144,7 @@
     "http2",
     "http2/hpack",
     "idna",
+    "xsrftoken",
   ]
   pruneopts = "UT"
   revision = "c10e9556a7bc0e7c942242b606f0acf024ad5d6a"
@@ -364,8 +365,11 @@
     "github.com/emicklei/go-restful",
     "github.com/golang/glog",
     "github.com/spf13/pflag",
+    "golang.org/x/net/xsrftoken",
     "gopkg.in/square/go-jose.v2",
     "k8s.io/api/authorization/v1",
+    "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/rest",
