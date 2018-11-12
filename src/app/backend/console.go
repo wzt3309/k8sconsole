@@ -106,7 +106,7 @@ func main() {
 	authManager := initAuthManager(clientManager)
 
 	// Create apiHandler
-	apiHandler, err := handler.CreateHTTPAPIHandler(authManager)
+	apiHandler, err := handler.CreateHTTPAPIHandler(clientManager, authManager)
 	if err != nil {
 		handleFatalInitError(err)
 	}

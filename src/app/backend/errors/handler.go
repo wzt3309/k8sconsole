@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"github.com/emicklei/go-restful"
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"net/http"
@@ -77,6 +78,18 @@ func contains(s []int32, e int32) bool {
 		}
 	}
 	return false
+}
+
+// HandleInternalError writes given error to the response
+func HandleInternalError(response *restful.Response, err error) {
+	glog.Error(err)
+	statusCode := http.StatusInternalServerError
+	statusError, ok := err.(*errors.StatusError)
+	if ok && statusError.Status().Code > 0 {
+		statusCode = int(statusError.Status().Code)
+	}
+	response.AddHeader("Content-Type", "text/plain")
+	response.WriteErrorString(statusCode, err.Error()+"\n")
 }
 
 // Return a http status according to the error
