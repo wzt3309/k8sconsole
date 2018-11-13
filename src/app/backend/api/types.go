@@ -111,6 +111,33 @@ var KindToAPIMapping = map[string]struct {
 	ResourceKindService:    {"services", ClientTypeDefault, true},
 }
 
+// IsSelectorMatching returns true when an object with the given selector targets the same
+// resource that the tested object with the given selector. - means labelSelector is the subset of testedObjectLabels
+func IsSelectorMatching(selector map[string]string, testedObjectLabels map[string]string) bool {
+	if len(selector) == 0 {
+		return false
+	}
+	for label, value := range selector {
+		if rsValue, ok := testedObjectLabels[label]; !ok || rsValue != value {
+			return false
+		}
+	}
+	return true
+}
+
+func IsLabelSelectorMatching(selector map[string]string, labelSelector *metaV1.LabelSelector) bool {
+	if len(selector) == 0 {
+		return false
+	}
+
+	for label, value := range selector {
+		if rsValue, ok := labelSelector.MatchLabels[label]; !ok || rsValue != value {
+			return false
+		}
+	}
+	return true
+}
+
 // ListEverything is a list options used to list all resource without any filtering.
 var ListEverything = metaV1.ListOptions{
 	LabelSelector: labels.Everything().String(),
