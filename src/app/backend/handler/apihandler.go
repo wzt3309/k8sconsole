@@ -6,8 +6,10 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/auth"
 	authApi "github.com/wzt3309/k8sconsole/src/app/backend/auth/api"
 	clientApi "github.com/wzt3309/k8sconsole/src/app/backend/client/api"
+	kcErrors "github.com/wzt3309/k8sconsole/src/app/backend/errors"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/common"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/dataselect"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/pod"
 	"golang.org/x/net/xsrftoken"
 	"net/http"
 	"strconv"
@@ -39,6 +41,15 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 			To(apiHandler.handleGetCsrfToken).
 			Writes(api.CsrfToken{}))
 
+	apiV1Ws.Route(
+		apiV1Ws.GET("/pod").
+			To(apiHandler.handleGetPods).
+			Writes(pod.PodList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/pod/{namespace}").
+			To(apiHandler.handleGetPods).
+			Writes(pod.PodList{}))
+
 	return wsContainer, nil
 }
 
@@ -46,6 +57,22 @@ func (apiHandler *APIHandler) handleGetCsrfToken(request *restful.Request, respo
 	action := request.PathParameter("action")
 	token := xsrftoken.Generate(apiHandler.cManager.CSRFKey(), "none", action)
 	response.WriteHeaderAndEntity(http.StatusOK, api.CsrfToken{Token: token})
+}
+
+func (apiHandler *APIHandler) handleGetPods(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := parseNamespacePathParameter(request)
+	dataSelect := parseDataSelectPathParameter(request)
+	result, err := pod.GetPodList(k8sClient, namespace, dataSelect)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 
 // Get namespaces from path parameter
@@ -76,4 +103,20 @@ func parsePaginationPathParameter(request *restful.Request) *dataselect.Paginati
 
 	// Frontend page start from 1 and backend start from 0
 	return dataselect.NewPaginationQuery(int(itemsPerPage), int(page - 1))
+}
+
+func parseFilterPathParameter(request *restful.Request) *dataselect.FilterQuery {
+	return dataselect.NewFilterQuery(strings.Split(request.QueryParameter("filterBy"), ","))
+}
+
+func parseSortPathParameter(request *restful.Request) *dataselect.SortQuery {
+	return dataselect.NewSortQuery(strings.Split(request.QueryParameter("sortBy"), ","))
+}
+
+// Parses query parameters of the request and returns a DataSelectQuery object
+func parseDataSelectPathParameter(request *restful.Request) *dataselect.DataSelectQuery {
+	paginationQuery := parsePaginationPathParameter(request)
+	sortQuery := parseSortPathParameter(request)
+	filterQuery := parseFilterPathParameter(request)
+	return dataselect.NewDataSelectQuery(paginationQuery, sortQuery, filterQuery)
 }

@@ -1,0 +1,29 @@
+#################################################### Test  AUTH ###################################################
+### Test /api/v1/login
+POST http://localhost:9090/api/v1/login
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+  "Token": "test-token"
+}
+
+################################################### Test  csrfToken ################################################
+### Test /api/v1/csrftoken/{action}
+GET http://localhost:9090/api/v1/csrftoken/get
+Content-Type: application/json
+Cache-Control: no-cache
+
+################################################### Test CRUD POD ###################################################
+### Test /api/v1/pod
+GET http://localhost:9090/api/v1/pod
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/pod/{namespace}
+GET http://localhost:9090/api/v1/pod/default
+Accept: application/json
+Cache-Control: no-cache
+
+###
+
