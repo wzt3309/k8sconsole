@@ -65,17 +65,32 @@ func NewTypeMeta(kind ResourceKind) TypeMeta {
 type ResourceKind string
 
 // List of all resource kinds
-// TODO(wzt3309) Need to add more resource kinds
 const (
-	ResourceKindConfigMap  = "configmap"
-	ResourceKindDaemonSet  = "daemonset"
-	ResourceKindDeployment = "deployment"
-	ResourceKindNamespace  = "namespace"
-	ResourceKindNode       = "node"
-	ResourceKindPod        = "pod"
-	ResourceKindReplicaSet = "replicaset"
-	ResourceKindSecret     = "secret"
-	ResourceKindService    = "service"
+	ResourceKindConfigMap  							= "configmap"
+	ResourceKindDaemonSet  							= "daemonset"
+	ResourceKindDeployment 							= "deployment"
+	ResourceKindEvent										= "event"
+	ResourceKindIngress									= "ingress"
+	ResourceKindJob											= "job"
+	ResourceKindCronJob									= "cronjob"
+	ResourceKindLimitRange							= "limitrange"
+	ResourceKindNamespace  							= "namespace"
+	ResourceKindNode       							= "node"
+	ResourceKindPersistentVolumeClaim		= "persistentvolumeclaim"
+	ResourceKindPersistentVolume				= "persistentvolume"
+	ResourceKindPod        							= "pod"
+	ResourceKindReplicaSet 							= "replicaset"
+	ResourceKindReplicationController 	= "replicationcontroller"
+	ResourceKindResourceQuota						= "resourcequota"
+	ResourceKindSecret     							= "secret"
+	ResourceKindService    							= "service"
+	ResourceKindStatefulSet							= "statefulset"
+	ResourceKindStorageClass						= "storageclass"
+	ResourceKindRbacRole								= "role"
+	ResourceKindRbacClusterRole					= "clusterrole"
+	ResourceKindRbacRoleBinding					= "rolebinding"
+	ResourceKindRbacClusterRoleBinding	= "clusterrolebinding"
+	ResourceKindEndpoint								= "endpoint"
 )
 
 // ClientType represents type of client that is used to perform generic operations on resources.
@@ -84,14 +99,16 @@ const (
 type ClientType string
 
 // List of client types.
-// TODO(wzt3309) Need to add more client types
 const (
-	ClientTypeDefault         = "restclient"
-	ClientTypeExtensionClient = "extensionclient"
+	ClientTypeDefault         		= "restclient"
+	ClientTypeExtensionClient   	= "extensionclient"
+	ClientTypeAppsClient        	= "appsclient"
+	ClientTypeBatchClient       	= "batchclient"
+	ClientTypeBetaBatchClient   	= "betabatchclient"
+	ClientTypeStorageClient     	= "storageclient"
 )
 
 // Mapping from resource kind to K8s apiserver API path.
-// TODO(wzt3309) Need to add more mappings
 var KindToAPIMapping = map[string]struct {
 	// k8s resource name
 	Resource string
@@ -100,15 +117,27 @@ var KindToAPIMapping = map[string]struct {
 	// Is this object global scoped (not below a namespace), i.e. 'kubectl get node'
 	Namespaced bool
 }{
-	ResourceKindConfigMap:  {"configmaps", ClientTypeDefault, true},
-	ResourceKindDaemonSet:  {"daemonsets", ClientTypeExtensionClient, true},
-	ResourceKindDeployment: {"deployments", ClientTypeExtensionClient, true},
-	ResourceKindNamespace:  {"namespaces", ClientTypeDefault, false},
-	ResourceKindNode:       {"nodes", ClientTypeDefault, false},
-	ResourceKindPod:        {"pods", ClientTypeDefault, true},
-	ResourceKindReplicaSet: {"replicasets", ClientTypeExtensionClient, true},
-	ResourceKindSecret:     {"secrets", ClientTypeDefault, true},
-	ResourceKindService:    {"services", ClientTypeDefault, true},
+	ResourceKindConfigMap:               {"configmaps", ClientTypeDefault, true},
+	ResourceKindDaemonSet:               {"daemonsets", ClientTypeExtensionClient, true},
+	ResourceKindDeployment:              {"deployments", ClientTypeExtensionClient, true},
+	ResourceKindEvent:                   {"events", ClientTypeDefault, true},
+	ResourceKindIngress:                 {"ingresses", ClientTypeExtensionClient, true},
+	ResourceKindJob:                     {"jobs", ClientTypeBatchClient, true},
+	ResourceKindCronJob:                 {"cronjobs", ClientTypeBetaBatchClient, true},
+	ResourceKindLimitRange:              {"limitrange", ClientTypeDefault, true},
+	ResourceKindNamespace:               {"namespaces", ClientTypeDefault, false},
+	ResourceKindNode:                    {"nodes", ClientTypeDefault, false},
+	ResourceKindPersistentVolumeClaim:   {"persistentvolumeclaims", ClientTypeDefault, true},
+	ResourceKindPersistentVolume:        {"persistentvolumes", ClientTypeDefault, false},
+	ResourceKindPod:                     {"pods", ClientTypeDefault, true},
+	ResourceKindReplicaSet:              {"replicasets", ClientTypeExtensionClient, true},
+	ResourceKindReplicationController:   {"replicationcontrollers", ClientTypeDefault, true},
+	ResourceKindResourceQuota:           {"resourcequotas", ClientTypeDefault, true},
+	ResourceKindSecret:                  {"secrets", ClientTypeDefault, true},
+	ResourceKindService:                 {"services", ClientTypeDefault, true},
+	ResourceKindStatefulSet:             {"statefulsets", ClientTypeAppsClient, true},
+	ResourceKindStorageClass:            {"storageclasses", ClientTypeStorageClient, false},
+	ResourceKindEndpoint:                {"endpoints", ClientTypeDefault, true},
 }
 
 // IsSelectorMatching returns true when an object with the given selector targets the same
