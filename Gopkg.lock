@@ -257,9 +257,10 @@
   version = "kubernetes-1.10.0"
 
 [[projects]]
-  digest = "1:5306fa4e911383bc8540148123e6a81aea1786dbf592ac051fd572fdd8a173b1"
+  digest = "1:23c436bf55686c36207ccc9019b3751e1f9685db9e6baaf6e0111343f890cb98"
   name = "k8s.io/apimachinery"
   packages = [
+    "pkg/api/equality",
     "pkg/api/errors",
     "pkg/api/meta",
     "pkg/api/resource",
@@ -367,10 +368,17 @@
     "github.com/spf13/pflag",
     "golang.org/x/net/xsrftoken",
     "gopkg.in/square/go-jose.v2",
+    "k8s.io/api/apps/v1beta2",
     "k8s.io/api/authorization/v1",
+    "k8s.io/api/batch/v1",
+    "k8s.io/api/core/v1",
+    "k8s.io/apimachinery/pkg/api/equality",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/fields",
+    "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
+    "k8s.io/apimachinery/pkg/types",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/rest",
     "k8s.io/client-go/tools/clientcmd",
