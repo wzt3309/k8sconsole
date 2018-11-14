@@ -42,7 +42,7 @@ Accept: application/json
 Cache-Control: no-cache
 
 ### Test /api/v1/node/{name}/pod
-GET http://localhost:9090/api/v1/node/minikube/pod
+GET http://localhost:9090/api/v1/node/minikube/pod?filterBy=name,kube-&sortBy=d,name
 Accept: application/json
 Cache-Control: no-cache
 

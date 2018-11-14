@@ -29,7 +29,7 @@ func NewSortQuery(sortByListRaw []string) *SortQuery {
 		switch orderOption {
 		case "a":
 			asc = true
-		case "b":
+		case "d":
 			asc = false
 		default:
 			return NoSort
