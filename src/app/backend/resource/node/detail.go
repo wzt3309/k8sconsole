@@ -217,7 +217,7 @@ func getNodeAllocatedResources(node v1.Node, pods *v1.PodList) (NodeAllocatedRes
 // containers of the pod.
 func PodRequestsAndLimits(pod *v1.Pod) (
 	reqs map[v1.ResourceName]resource.Quantity, limits map[v1.ResourceName]resource.Quantity, err error) {
-
+	reqs, limits = map[v1.ResourceName]resource.Quantity{}, map[v1.ResourceName]resource.Quantity{}
 	for _, container := range pod.Spec.Containers {
 		for name, quantity := range container.Resources.Requests {
 			if value, ok := reqs[name]; !ok {
