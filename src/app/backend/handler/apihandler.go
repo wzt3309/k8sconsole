@@ -9,6 +9,8 @@ import (
 	kcErrors "github.com/wzt3309/k8sconsole/src/app/backend/errors"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/common"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/dataselect"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/event"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/node"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/pod"
 	"golang.org/x/net/xsrftoken"
 	"net/http"
@@ -50,6 +52,23 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 			To(apiHandler.handleGetPods).
 			Writes(pod.PodList{}))
 
+	apiV1Ws.Route(
+		apiV1Ws.GET("/node").
+			To(apiHandler.handleGetNodeList).
+			Writes(node.NodeList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/node/{name}").
+			To(apiHandler.handleGetNodeDetail).
+			Writes(node.NodeDetail{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/node/{name}/event").
+			To(apiHandler.handleGetNodeEvents).
+			Writes(common.EventList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/node/{name}/pod").
+			To(apiHandler.handleGetNodePods).
+			Writes(pod.PodList{}))
+
 	return wsContainer, nil
 }
 
@@ -67,11 +86,81 @@ func (apiHandler *APIHandler) handleGetPods(request *restful.Request, response *
 	}
 
 	namespace := parseNamespacePathParameter(request)
-	dataSelect := parseDataSelectPathParameter(request)
-	result, err := pod.GetPodList(k8sClient, namespace, dataSelect)
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := pod.GetPodList(k8sClient, namespace, dsQuery)
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
 	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetNodeList(request *restful.Request, response *restful.Response) {
+	k8sclient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := node.GetNodeList(k8sclient, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetNodeDetail(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	name := request.PathParameter("name")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := node.GetNodeDetail(k8sClient, name, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetNodeEvents(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	name := request.PathParameter("name")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := event.GetNodeEvents(k8sClient, dsQuery, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetNodePods(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	name := request.PathParameter("name")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := node.GetNodePods(k8sClient, dsQuery, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
 	response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 

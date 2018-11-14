@@ -25,5 +25,25 @@ GET http://localhost:9090/api/v1/pod/default
 Accept: application/json
 Cache-Control: no-cache
 
-###
+################################################### Test CRUD Node ###################################################
+### Test /api/v1/node
+GET http://localhost:9090/api/v1/node
+Accept: application/json
+Cache-Control: no-cache
 
+### Test /api/v1/node/{name}
+GET http://localhost:9090/api/v1/node/minikube
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/node/{name}/event
+GET http://localhost:9090/api/v1/node/minikube/event
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/node/{name}/pod
+GET http://localhost:9090/api/v1/node/minikube/pod
+Accept: application/json
+Cache-Control: no-cache
+
+###
