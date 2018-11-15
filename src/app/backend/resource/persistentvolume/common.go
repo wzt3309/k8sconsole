@@ -2,6 +2,7 @@ package persistentvolume
 
 import (
 	"github.com/golang/glog"
+	"github.com/wzt3309/k8sconsole/src/app/backend/errors"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/common"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/dataselect"
 	"k8s.io/api/core/v1"
@@ -23,7 +24,8 @@ func GetStorageClassPersistentVolumes(client kubernetes.Interface, storageClassN
 	}
 
 	persistentVolumeList := <- channels.PersistentVolumeList.List
-	nonCriticalErrors, criticalError := <- channels.PersistentVolumeList.Error
+	err = <- channels.PersistentVolumeList.Error
+	nonCriticalErrors, criticalError := errors.HandleError(err)
 	if criticalError != nil {
 		return nil, criticalError
 	}
