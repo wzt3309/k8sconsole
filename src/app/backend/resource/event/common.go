@@ -119,6 +119,13 @@ func GetNodeEvents(client client.Interface, dsQuery *dataselect.DataSelectQuery,
 	return &eventList, nil
 }
 
+// GetNamespaceEvents gets events associated to a namespace with given name.
+func GetNamespaceEvents(client client.Interface,
+	dsQuery *dataselect.DataSelectQuery, namespace string) (common.EventList, error) {
+	events, _ := client.CoreV1().Events(namespace).List(api.ListEverything)
+	return CreateEventList(FillEventsType(events.Items), dsQuery), nil
+}
+
 // Based on event Reason fills event Type in order to allow correct filtering by Type.
 func FillEventsType(events []v1.Event) []v1.Event {
 	for i := range events {
