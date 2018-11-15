@@ -8,10 +8,15 @@ import (
 	clientApi "github.com/wzt3309/k8sconsole/src/app/backend/client/api"
 	kcErrors "github.com/wzt3309/k8sconsole/src/app/backend/errors"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/common"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/configmap"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/dataselect"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/event"
+	ns "github.com/wzt3309/k8sconsole/src/app/backend/resource/namespace"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/node"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/persistentvolume"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/persistentvolumeclaim"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/pod"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/secret"
 	"golang.org/x/net/xsrftoken"
 	"net/http"
 	"strconv"
@@ -53,6 +58,55 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 			Writes(pod.PodList{}))
 
 	apiV1Ws.Route(
+		apiV1Ws.POST("/namespace").
+			To(apiHandler.handleCreateNamespace).
+			Reads(ns.NamespaceSpec{}).
+			Writes(ns.NamespaceSpec{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/namespace").
+			To(apiHandler.handleGetNamespaces).
+			Writes(ns.NamespaceList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/namespace/{name}").
+			To(apiHandler.handleGetNamespaceDetail).
+			Writes(ns.NamespaceDetail{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/namespace/{name}/event").
+			To(apiHandler.handleGetNamespaceEvents).
+			Writes(common.EventList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/secret").
+			To(apiHandler.handleGetSecretList).
+			Writes(secret.SecretList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/secret/{namespace}").
+			To(apiHandler.handleGetSecretList).
+			Writes(secret.SecretList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/secret/{namespace}/{name}").
+			To(apiHandler.handleGetSecretDetail).
+			Writes(secret.SecretDetail{}))
+	apiV1Ws.Route(
+		apiV1Ws.POST("/secret").
+			To(apiHandler.handleCreateImagePullSecret).
+			Reads(secret.ImagePullSecretSpec{}).
+			Writes(secret.Secret{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/configmap").
+			To(apiHandler.handleGetConfigMapList).
+			Writes(configmap.ConfigMapList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/configmap/{namespace}").
+			To(apiHandler.handleGetConfigMapList).
+			Writes(configmap.ConfigMapList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/configmap/{namespace}/{configmap}").
+			To(apiHandler.handleGetConfigMapDetail).
+			Writes(configmap.ConfigMapDetail{}))
+
+	apiV1Ws.Route(
 		apiV1Ws.GET("/node").
 			To(apiHandler.handleGetNodeList).
 			Writes(node.NodeList{}))
@@ -68,6 +122,28 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/node/{name}/pod").
 			To(apiHandler.handleGetNodePods).
 			Writes(pod.PodList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/persistentvolume").
+			To(apiHandler.handleGetPersistentVolumeList).
+			Writes(persistentvolume.PersistentVolumeList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/persistentvolume/{persistentvolume}").
+			To(apiHandler.handleGetPersistentVolumeDetail).
+			Writes(persistentvolume.PersistentVolumeDetail{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/persistentvolumeclaim").
+			To(apiHandler.handleGetPersistentVolumeClaimList).
+			Writes(persistentvolumeclaim.PersistentVolumeClaimList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/persistentvolumeclaim/{namespace}").
+			To(apiHandler.handleGetPersistentVolumeClaimList).
+			Writes(persistentvolumeclaim.PersistentVolumeClaimList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/persistentvolumeclaim/{namespace}/{name}").
+			To(apiHandler.handleGetPersistentVolumeClaimDetail).
+			Writes(persistentvolumeclaim.PersistentVolumeClaimDetail{}))
 
 	return wsContainer, nil
 }
@@ -91,6 +167,61 @@ func (apiHandler *APIHandler) handleGetPods(request *restful.Request, response *
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
 	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleCreateNamespace(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespaceSpec := new(ns.NamespaceSpec)
+	if err := request.ReadEntity(namespaceSpec); err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	if err := ns.CreateNamespace(namespaceSpec, k8sClient); err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, namespaceSpec)
+}
+
+func (apiHandler *APIHandler) handleGetNamespaces(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := ns.GetNamespaceList(k8sClient, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetNamespaceDetail(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	name := request.PathParameter("name")
+	result, err := ns.GetNamespaceDetail(k8sClient, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
 	response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 
@@ -107,6 +238,7 @@ func (apiHandler *APIHandler) handleGetNodeList(request *restful.Request, respon
 		kcErrors.HandleInternalError(response, err)
 		return
 	}
+
 	response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 
@@ -125,6 +257,115 @@ func (apiHandler *APIHandler) handleGetNodeDetail(request *restful.Request, resp
 		return
 	}
 
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetNamespaceEvents(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	name := request.PathParameter("name")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := event.GetNamespaceEvents(k8sClient, dsQuery, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetSecretList(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := parseNamespacePathParameter(request)
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := secret.GetSecretList(k8sClient, namespace, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetSecretDetail(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("name")
+	result, err := secret.GetSecretDetail(k8sClient, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleCreateImagePullSecret(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	spec := new(secret.ImagePullSecretSpec)
+	if err := request.ReadEntity(spec); err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	result, err := secret.CreateSecret(k8sClient, spec)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetConfigMapList(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := parseNamespacePathParameter(request)
+	dataSelect := parseDataSelectPathParameter(request)
+	result, err := configmap.GetConfigMapList(k8sClient, namespace, dataSelect)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetConfigMapDetail(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("configmap")
+	result, err := configmap.GetConfigMapDetail(k8sClient, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
 	response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 
@@ -161,6 +402,72 @@ func (apiHandler *APIHandler) handleGetNodePods(request *restful.Request, respon
 		return
 	}
 
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetPersistentVolumeList(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	dataSelect := parseDataSelectPathParameter(request)
+	result, err := persistentvolume.GetPersistentVolumeList(k8sClient, dataSelect)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetPersistentVolumeDetail(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	name := request.PathParameter("persistentvolume")
+	result, err := persistentvolume.GetPersistentVolumeDetail(k8sClient, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetPersistentVolumeClaimList(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := parseNamespacePathParameter(request)
+	dataSelect := parseDataSelectPathParameter(request)
+	result, err := persistentvolumeclaim.GetPersistentVolumeClaimList(k8sClient, namespace, dataSelect)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetPersistentVolumeClaimDetail(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("name")
+	result, err := persistentvolumeclaim.GetPersistentVolumeClaimDetail(k8sClient, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
 	response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 
