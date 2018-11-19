@@ -8,16 +8,10 @@ cache:
   directories:
   - node_modules
   - ".tools"
-install:
-- chmod +x build/*.sh
-#- npm install
 before_script:
 - eval "$(gimme 1.10.2)"
 script:
 - "./node_modules/.bin/gulp build:cross"
-branches:
-  only:
-  - master
 deploy:
   provider: releases
   api_key:
@@ -28,8 +22,6 @@ deploy:
     - dist/darwin/*
   skip_cleanup: true
   on:
-    repo:
-    - wzt3309/k8sconsole
-    - hbulpf/k8sconsole
+    repo: hbulpf/k8sconsole
     tags: true
 
