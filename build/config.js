@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'path';
 
 /**
  * Load the i18n and l10n configuration. Used when dashboard is built in production.
@@ -28,12 +28,16 @@ export default {
         base: basePath,
         bowerComponents: path.join(basePath, 'bower_components'),
         build: path.join(basePath, 'build'),
+        coverage: path.join(basePath, 'coverage'),
+        coverageBackend: path.join(basePath, 'coverage/go.txt'),
+        coverageFrontend: path.join(basePath, 'coverage/lcov/lcov.info'),
         deploySrc: path.join(basePath, 'src/app/deploy'),
         dist: path.join(basePath, 'dist'),
         externs: path.join(basePath, 'src/app/externs'),
         frontendSrc: path.join(basePath, 'src/app/frontend'),
         frontendTest: path.join(basePath, 'src/test/frontend'),
         goTools: path.join(basePath, '.tools/go'),
+        goTestScript: path.join(basePath, 'build/go-test.sh'),
         i18nProd: path.join(basePath, '.tmp/i18n'),
         integrationTest: path.join(basePath, 'src/test/integration'),
         karmaConf: path.join(basePath, 'build/karma.conf.js'),
@@ -41,6 +45,7 @@ export default {
         nodeModules: path.join(basePath, 'node_modules'),
         partials: path.join(basePath, '.tmp/partials'),
         prodTmp: path.join(basePath, '.tmp/prod'),
+        protractorConf: path.join(basePath, 'build/protractor.conf.js'),
         serve: path.join(basePath, '.tmp/serve'),
         src: path.join(basePath, 'src'),
         tmp: path.join(basePath, '.tmp'),
@@ -66,6 +71,12 @@ export default {
          * Name of the main backend package that is used in go build command.
          */
         mainPackageName: 'github.com/wzt3309/k8sconsole/src/app/backend',
+
+        testCommandArgs:
+            [
+                'test',
+                'github.com/wzt3309/k8sconsole/src/app/backend/...',
+            ],
     },
 
     build: {
