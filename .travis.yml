@@ -1,22 +1,24 @@
 sudo: required
 dist: trusty
 group: edge
+
 language: node_js
 node_js:
   - 8.6.0
+
 cache:
   directories:
   - node_modules
   - ".tools"
+
 install:
 - chmod +x build/*.sh
+
 before_script:
 - eval "$(gimme 1.10.2)"
 script:
 - "./node_modules/.bin/gulp build:cross"
-branches:
-  only:
-  - master
+
 deploy:
   provider: releases
   api_key:
@@ -27,6 +29,6 @@ deploy:
     - dist/darwin/*
   skip_cleanup: true
   on:
-    repo: hbulpf/k8sconsole
+    repo: wzt3309/k8sconsole
     tags: true
 
