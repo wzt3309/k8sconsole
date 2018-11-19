@@ -108,7 +108,7 @@ gulp.task('spawn-backend', ['backend', 'kill-backend'], function () {
     runningBackendProcess.on("exit", function () {
         // Mark there is not backend process running anymore.
         runningBackendProcess = null;
-    })
+    });
 });
 
 /**
@@ -140,7 +140,7 @@ gulp.task('kill-backend', function (doneFn) {
             doneFn();
         });
 
-        runningBackendProcess.kill()
+        runningBackendProcess.kill();
     } else {
         doneFn();
     }

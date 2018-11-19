@@ -1,6 +1,7 @@
 import del from 'del';
 import fs from 'fs';
 import gulp from 'gulp';
+import lodash from 'lodash';
 import path from 'path';
 
 import config from './config';
@@ -15,10 +16,32 @@ gulp.task('backend', ['package-backend'], function (doneFn) {
             'build',
             // Install dependencies to speed up subsequent compilations.
             '-i',
+            // record version info into src/app/backend/client.Version
+            '-ldflags',
+            config.recordVersionExpression,
             '-o',
             path.join(config.paths.serve, config.backend.binaryName),
             config.backend.mainPackageName,
         ], doneFn);
+});
+
+/**
+ * Compiles backend application in production mode for the current architecture and places the
+ * binary in the dist directory.
+ */
+gulp.task('backend:prod', ['package-backend', 'clean-dist'], function() {
+    let outputBinaryPath = path.join(config.paths.dist, config.backend.binaryName);
+    return backendProd([[outputBinaryPath, config.arch.default]]);
+});
+
+/**
+ * Compiles backend application in production mode for all architectures and places the
+ * binary in the dist directory.
+ */
+gulp.task('backend:prod:cross', ['package-backend', 'clean-dist'], function() {
+    let outputBinaryPaths =
+        config.paths.distCross.map((dir) => path.join(dir, config.backend.binaryName));
+    return backendProd(lodash.zip(outputBinaryPaths, config.arch.list));
 });
 
 /**
@@ -56,3 +79,40 @@ gulp.task('link-vendor', ['package-backend-source'], function (doneFn) {
         }
     });
 });
+
+function backendProd(outputBinaryPathsAndArchs) {
+    let promiseFn = (path, arch) => {
+        return (resolve, reject) => {
+            goCommand(
+                [
+                    'build',
+                    '-a',
+                    '-installsuffix',
+                    'cgo',
+                    '-ldflags',
+                    `${config.recordVersionExpression} -w -s`,
+                    '-o',
+                    path,
+                    config.backend.mainPackageName,
+                ],
+                (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                },
+                {
+                    // Disable cgo package
+                    CGO_ENABLED: '0',
+                    GOARCH: arch,
+                });
+        };
+    };
+
+    let goCommandPromises = outputBinaryPathsAndArchs.map(
+        (pathAndArch) => new Promise(promiseFn(pathAndArch[0], pathAndArch[1]))
+    );
+
+    return Promise.all(goCommandPromises);
+}

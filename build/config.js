@@ -10,8 +10,36 @@ let localization = require('../i18n/locale_conf.json');
  */
 const basePath = path.join(__dirname, '../');
 
-export default {
+/**
+ *  Architecture configuration.
+ */
+const arch = {
+    /**
+     * Default architecture that the project is compiled to.
+     * Used for local dev and test
+     */
+    default: 'amd64',
 
+    /**
+     * List of all
+     */
+    list: ['amd64', 'arm', 'arm64', 'ppc64le', 's390x'],
+};
+
+const version = {
+    /**
+     * Current release version
+     */
+    release: 'v0.0.1',
+    /**
+     * Version name of the head release of the project
+     */
+    head: 'head',
+};
+
+export default {
+    recordVersionExpression:
+        `-X github.com/wzt3309/k8sconsole/src/app/backend/client.Version=${version.release}`,
     /**
      * Absolute paths to known dirs, e.g., to src dir
      */
@@ -32,7 +60,12 @@ export default {
         coverageBackend: path.join(basePath, 'coverage/go.txt'),
         coverageFrontend: path.join(basePath, 'coverage/lcov/lcov.info'),
         deploySrc: path.join(basePath, 'src/app/deploy'),
-        dist: path.join(basePath, 'dist'),
+        dist: path.join(basePath, 'dist', arch.default),
+        distCross: arch.list.map((arch) => path.join(basePath, 'dist', arch)),
+        distPre: path.join(basePath, '.tmp/dist'),
+        distPublic: path.join(basePath, 'dist', arch.default, 'public'),
+        distPublicCross: arch.list.map((arch) => path.join(basePath, 'dist', arch, 'public')),
+        distRoot: path.join(basePath, 'dist'),
         externs: path.join(basePath, 'src/app/externs'),
         frontendSrc: path.join(basePath, 'src/app/frontend'),
         frontendTest: path.join(basePath, 'src/test/frontend'),
@@ -66,7 +99,7 @@ export default {
         /**
          * The name of the backend binary.
          */
-        binaryName: 'console',
+        binaryName: 'k8sconsole',
         /**
          * Name of the main backend package that is used in go build command.
          */
