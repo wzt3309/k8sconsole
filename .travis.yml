@@ -28,6 +28,8 @@ deploy:
     - dist/darwin/*
   skip_cleanup: true
   on:
-    repo: wzt3309/k8sconsole
+    repo:
+    - wzt3309/k8sconsole
+    - hbulpf/k8sconsole
     tags: true
 
