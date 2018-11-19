@@ -93,7 +93,7 @@ function backendProd(outputBinaryPathsAndOSs) {
                     `${config.recordVersionExpression} -w -s`,
                     '-o',
                     path,
-                    config.backend.mainPackageName,
+                    `${config.backend.mainPackageName}-${os}-${config.arch.default}`,
                 ],
                 (err) => {
                     if (err) {
