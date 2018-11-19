@@ -9,10 +9,10 @@ cache:
   - node_modules
   - ".tools"
 install:
+- chmod +x build/*.sh
 - npm install
 before_script:
 - eval "$(gimme 1.10.2)"
-- chmod +x build/*.sh
 script:
 - "./node_modules/.bin/gulp build:cross"
 branches:
