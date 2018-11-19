@@ -12,6 +12,7 @@ install:
 - npm install
 before_script:
 - eval "$(gimme 1.10.2)"
+- chmod +x build/*.sh
 script:
 - "./node_modules/.bin/gulp build:cross"
 branches:
