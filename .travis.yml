@@ -19,6 +19,10 @@ before_script:
 
 script:
 - "./node_modules/.bin/gulp build:cross"
+- "ls -al dist/"
+- "ls -al dist/linux"
+- "ls -al dist/windows"
+- "ls -al dist/darwin"
 
 deploy:
   provider: releases
