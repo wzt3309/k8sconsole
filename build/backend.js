@@ -26,22 +26,22 @@ gulp.task('backend', ['package-backend'], function (doneFn) {
 });
 
 /**
- * Compiles backend application in production mode for the current architecture and places the
+ * Compiles backend application in production mode for the default os 'linux' and places the
  * binary in the dist directory.
  */
 gulp.task('backend:prod', ['package-backend', 'clean-dist'], function() {
     let outputBinaryPath = path.join(config.paths.dist, config.backend.binaryName);
-    return backendProd([[outputBinaryPath, config.arch.default]]);
+    return backendProd([[outputBinaryPath, config.os.default]]);
 });
 
 /**
- * Compiles backend application in production mode for all architectures and places the
+ * Compiles backend application in production mode for all OS and places the
  * binary in the dist directory.
  */
 gulp.task('backend:prod:cross', ['package-backend', 'clean-dist'], function() {
     let outputBinaryPaths =
         config.paths.distCross.map((dir) => path.join(dir, config.backend.binaryName));
-    return backendProd(lodash.zip(outputBinaryPaths, config.arch.list));
+    return backendProd(lodash.zip(outputBinaryPaths, config.os.list));
 });
 
 /**
@@ -80,8 +80,8 @@ gulp.task('link-vendor', ['package-backend-source'], function (doneFn) {
     });
 });
 
-function backendProd(outputBinaryPathsAndArchs) {
-    let promiseFn = (path, arch) => {
+function backendProd(outputBinaryPathsAndOSs) {
+    let promiseFn = (path, os) => {
         return (resolve, reject) => {
             goCommand(
                 [
@@ -105,13 +105,14 @@ function backendProd(outputBinaryPathsAndArchs) {
                 {
                     // Disable cgo package
                     CGO_ENABLED: '0',
-                    GOARCH: arch,
+                    GOOS: os,
+                    GOARCH: config.arch.default,
                 });
         };
     };
 
-    let goCommandPromises = outputBinaryPathsAndArchs.map(
-        (pathAndArch) => new Promise(promiseFn(pathAndArch[0], pathAndArch[1]))
+    let goCommandPromises = outputBinaryPathsAndOSs.map(
+        (pathAndOS) => new Promise(promiseFn(pathAndOS[0], pathAndOS[1]))
     );
 
     return Promise.all(goCommandPromises);

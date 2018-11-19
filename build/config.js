@@ -20,10 +20,21 @@ const arch = {
      */
     default: 'amd64',
 
+    // /**
+    //  * List of all
+    //  */
+    // list: ['amd64', 'arm', 'arm64', 'ppc64le', 's390x'],
+};
+
+const os = {
+    /**
+     * Default os platform
+     */
+    default: 'linux',
     /**
      * List of all
      */
-    list: ['amd64', 'arm', 'arm64', 'ppc64le', 's390x'],
+    list: ['linux', 'darwin', 'windows'],
 };
 
 const version = {
@@ -60,11 +71,11 @@ export default {
         coverageBackend: path.join(basePath, 'coverage/go.txt'),
         coverageFrontend: path.join(basePath, 'coverage/lcov/lcov.info'),
         deploySrc: path.join(basePath, 'src/app/deploy'),
-        dist: path.join(basePath, 'dist', arch.default),
-        distCross: arch.list.map((arch) => path.join(basePath, 'dist', arch)),
+        dist: path.join(basePath, 'dist', os.default),
+        distCross: os.list.map((os) => path.join(basePath, 'dist', os)),
         distPre: path.join(basePath, '.tmp/dist'),
-        distPublic: path.join(basePath, 'dist', arch.default, 'public'),
-        distPublicCross: arch.list.map((arch) => path.join(basePath, 'dist', arch, 'public')),
+        distPublic: path.join(basePath, 'dist', os.default, 'public'),
+        distPublicCross: os.list.map((os) => path.join(basePath, 'dist', os, 'public')),
         distRoot: path.join(basePath, 'dist'),
         externs: path.join(basePath, 'src/app/externs'),
         frontendSrc: path.join(basePath, 'src/app/frontend'),
@@ -123,6 +134,7 @@ export default {
     },
 
     arch: arch,
+    os: os,
 
     /**
      * Configuration for i18n & l10n.
