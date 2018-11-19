@@ -122,6 +122,8 @@ export default {
         imageName: 'wzt3309/k8sconsole',
     },
 
+    arch: arch,
+
     /**
      * Configuration for i18n & l10n.
      */
