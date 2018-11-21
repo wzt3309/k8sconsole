@@ -1,0 +1,507 @@
+swagger: "2.0"
+info:
+  description: |
+    # This is a `k8sconsole` api docs
+    `K8sconsole` is a web console designed to manage kubernetes resources,
+    just like the command-line tool `kubectl`.
+
+    We can use apis list below to `get`/`post`/`delete` kubernetes resources.
+
+  version: v0.0.1
+  title: K8sconsole Api
+  contact:
+    email: wzt3309@gmail.com
+
+host: localhost:9090
+basePath: /api/v1
+schemes:
+  - http
+  # not ready
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+tags:
+- name: auth
+  description: Authertication & Authorization
+- name: csrf
+  description: Defense CSRF
+- name: pod
+  description: CRUD Operations of Pods
+- name: node
+  description: CRUD Operations of Nodes
+- name: namespace
+  description: CRUD Operations of Namespaces
+- name: secret
+  description: CRUD Operations of secret
+- name: configmap
+  description: CRUD Operations of ConfigMap
+- name: persistent-volume
+  description: CRUD Operations of Persistent Volume
+- name: persistent-volume-claim
+  description: CRUD Operations of Persistent Volume Claim
+
+paths:
+  #================================================= auth ==================================================#
+  /login:
+    post:
+      tags:
+      - auth
+      summary: Login k8sconsole
+      description: |
+        We hava three authentication modes:
+        * basic            - use username and password, and k8s apiserver need support ABAC mode
+        * token(recommand) - use k8s secret token for a service account
+        * kubeconfig       - not support yet
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      - text/plain
+      parameters:
+      - in: body
+        name: LoginSpec
+        required: true
+        description: LoginSpec contains information required to authenticate user.
+        schema:
+          $ref: "#/definitions/LoginSpec"
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: "#/definitions/AuthResponse"
+        500:
+          description: Internal Server Error
+
+  /token/refresh:
+    post:
+      tags:
+      - auth
+      summary: Refresh jweToken
+      description: Refresh jweToken avoiding which was expired.
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      - text/plain
+      parameters:
+      - in: body
+        name: TokenRefreshSpec
+        required: true
+        description: TokenRefreshSpec contains token that is required by token refresh operation.
+        schema:
+          type: object
+          properties:
+            jweToken:
+              $ref: "#/definitions/JWE"
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: "#/definitions/AuthResponse"
+        401:
+          description: Unauthorized
+        500:
+          description: Internal Server Error
+
+  /login/modes:
+    get:
+      tags:
+      - auth
+      summary: Retrive authentication modes supported
+      responses:
+        200:
+          description: ok
+          schema:
+            type: object
+            description: LoginModesResponse contains list of auth modes supported by k8sconsole.
+            required:
+            - modes
+            properties:
+              modes:
+                type: array
+                description: List of supported authentication mdoes.
+                items:
+                  type: string
+
+  /login/skippable:
+    get:
+      tags:
+      - auth
+      summary: A flag of hide 'auth skip' button
+      description: |
+        LoginSkippableResponse contains a flag that tells the frontend not to display the 'auth skip' button
+        It's just for hide the button, not disable unauthenticated access
+      responses:
+        200:
+          description: ok
+          schema:
+            type: object
+            required:
+            - skippable
+            properties:
+              skippable:
+                type: boolean
+
+  #================================================= csrf ==================================================#
+  /csrftoken/{action}:
+    get:
+      tags:
+      - csrf
+      summary: Get csrftoken for different verb
+      description: |
+        *Note.* csrf has not be enable yet. So you can just test this api, but is meaningless.
+      parameters:
+        - in: path
+          name: action
+          required: true
+          type: string
+          description: |
+            Different verb, e.g. if action is 'put' means to get csrftoken for verb post
+            Posible value of path parameter - action:
+            * PUT
+            * POST
+            * GET
+            * DELETE
+          default: get
+      responses:
+        200:
+          description: ok
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                format: byte
+
+  #================================================ pod ====================================================#
+  /pod:
+    get:
+      tags:
+      - pod
+      summary: Get all pods in k8s cluster
+      produces:
+      - application/json
+      - text/plain
+      parameters:
+      - in: query
+        name: filterBy
+        type: string
+        description: |
+          The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+          The valid filter parameters like below(Pod.ObjectMeta is in k8s.io/api/core/v1/types.go):
+          * name - Pod.ObjectMeta.name
+          * creationTimestamp - Pod.ObjectMeta.creationTimestamp
+          * namespace - Pod.ObjectMeta.namespace
+          * status - Pod.Status.Phase
+
+          And we use full match to filter value, just like syntax of 'like' in mysql
+
+          e.g.
+
+          '/pod?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'
+        default: name,kube-
+      - in: query
+        name: sortBy
+        type: string
+        description: |
+          The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+          Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+          e.g.
+
+          '/pod?sortBy=d,name'
+        default: d,name
+      - in: query
+        name: itemsPerPage
+        type: integer
+        description: The number of items per page
+        default: 2
+      - in: query
+        name: page
+        type: integer
+        description: The page number, which must starts from '1'
+        default: 1
+        minimum: 1
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: "#/definitions/PodList"
+        500:
+          description: Internal Server Error
+
+  /pod/{namespace}:
+    get:
+      tags:
+      - pod
+      summary: Get list of pods in a namespace
+      produces:
+      - application/json
+      - text/plain
+      parameters:
+      - in: path
+        name: namespace
+        required: true
+        type: string
+        description: The k8s namespace, e.g. 'kube-system', 'default'
+        default: default
+      - in: query
+        name: filterBy
+        type: string
+        description: |
+          The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+          The valid filter parameters like below(Pod.ObjectMeta is in k8s.io/api/core/v1/types.go):
+          * name - Pod.ObjectMeta.name
+          * creationTimestamp - Pod.ObjectMeta.creationTimestamp
+          * namespace - Pod.ObjectMeta.namespace
+          * status - Pod.Status.Phase
+
+          And we use full match to filter value, just like syntax of 'like' in mysql
+
+          e.g.
+
+          '/pod/{namespace}?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'
+        default: name,kube-
+      - in: query
+        name: sortBy
+        type: string
+        description: |
+          The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+          Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+          e.g.
+
+          '/pod/{namespace}?sortBy=d,name'
+        default: d,name
+      - in: query
+        name: itemsPerPage
+        type: integer
+        description: The number of items per page
+        default: 1
+      - in: query
+        name: page
+        type: integer
+        description: The page number, which must starts from '1'
+        default: 1
+        minimum: 1
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: "#/definitions/PodList"
+        500:
+          description: Internal Server Error
+
+definitions:
+  LoginSpec:
+    type: object
+    description: |
+      LoginSpec is extracted from request coming from k8sconsole frontend during loging request. It contains all
+      information required to authenticate user.
+    properties:
+      username:
+        type: string
+        description: Use basic mode, need with password.
+      passowrd:
+        type: string
+        description: Use basic mode, need with username.
+      token:
+        type: string
+        description: Can use `kubectl describe secret ...` get the token for the default service account.
+        example: test-token
+      kubeConfig:
+        type: string
+        description: "KubeConfig is the content of users' kubeconfig file. We can extract all auth information
+        from the data in the file."
+
+  AuthResponse:
+    type: object
+    description: |
+      AuthResponse represents the response returned from k8sconsole backend for login requests. It contains generated
+      jweToken and a list of non-critical errors such as 'Failed authentication' to tell the frontend what unexpected
+      happened during login request.
+    required:
+    - jweToken
+    - errors
+    properties:
+      jweToken:
+        $ref: "#/definitions/JWE"
+      errors:
+        type: array
+        items:
+          type: string
+          description:  List of non-critical errors, that occurred during login
+
+  JWE:
+    type: object
+    description: |
+      JWE is the body of jweToken is a token generated during login request that contains auth info data in the payload.
+      We don't need to care about the content of jweToken in the frontend or client.
+
+      When we use other api, we need to put the jweToken in the request http header otherwise we will be returned
+      code 403.
+
+      \*Note.\* we don't have to use jweToken auth in the dev version(v0.0.1) to get resources.
+    required:
+    - protected
+    - aad
+    - encrypted_key
+    - iv
+    - ciphertext
+    properties:
+      protected:
+        type: string
+        format: byte
+      add:
+        type: string
+        format: byte
+      encrypted_key:
+        type: string
+        format: byte
+      iv:
+        type: string
+        format: byte
+      ciphertext:
+        type: string
+        format: byte
+
+  ObjectMeta:
+    type: object
+    description: ObjectMeta is metadata about an instance of resource
+    required:
+    - name
+    - namespace
+    - labels
+    - annotations
+    - creationTimestamp
+    properties:
+      name:
+        type: string
+        description: Object name and the name is unique within a namespace
+      namespace:
+        type: string
+        description: |
+          Any empty namespace equivalent to the 'default' namespace.
+          Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty
+      labels:
+        type: object
+        description: Labels are k-v pairs that may be scope and select individual resources.
+      annotations:
+        type: object
+        description: Annotations are unstructured key value data stored with a resource that be set by external tooling.
+      creationTimestamp:
+        type: string
+        format: date-time
+
+  TypeMeta:
+    type: object
+    description: TypeMeta describes the type of an object in response and request
+    required:
+    - kind
+    properties:
+      kind:
+        type: string
+        description: Kind of an object
+
+  ListMeta:
+    type: object
+    description: ListMeta describes list of objects.
+    required:
+    - totalItems
+    properties:
+      totalItems:
+        type: integer
+        description: Total number of items in list
+
+  ResourceStatus:
+    type: object
+    description: ResourceStatus provides basic information about resource status on the list
+    required:
+    - running
+    - pending
+    - failed
+    - succeeded
+    properties:
+      running:
+        type: integer
+        description: Number of resources that are currently in running state
+      pending:
+        type: integer
+        description: Number of resources that are currently in pending state
+      failed:
+        type: integer
+        description: Number of resources that are currently in failed state
+      succeeded:
+        type: integer
+        description: Number of resources that are currently in succeeded state
+
+  PodStatus:
+    type: object
+    required:
+    - status
+    - podPhase
+    - containerStates
+    properties:
+      status:
+        type: string
+        description: "Running Pending Failed Succeeded"
+      podPhase:
+        type: string
+        description: "Running Pending Failed Succeeded in apiserver guess"
+      containerStates:
+        type: array
+        items:
+          type: object
+
+  Pod:
+    type: object
+    description: Pod is a view of kubernetes Pod resource, it is Pod plus additional augmented data
+    required:
+    - objectMeta
+    - typeMeta
+    - podStatus
+    - restartCount
+    - nodeName
+    properties:
+      objectMeta:
+        type: object
+        $ref: "#/definitions/ObjectMeta"
+      typeMeta:
+        type: object
+        $ref: "#/definitions/TypeMeta"
+
+  PodList:
+    type: object
+    required:
+    - listMeta
+    - status
+    - pods
+    - errors
+    properties:
+      listMeta:
+        $ref: "#/definitions/ListMeta"
+      status:
+        $ref: "#/definitions/ResourceStatus"
+      pods:
+        type: array
+        items:
+          $ref: "#/definitions/ResourceStatus"
+      errors:
+        type: array
+        items:
+          type: string
+          description: List of non-critical errors, that occurred during resource retrieval
+
+
+
+
+
+
+
