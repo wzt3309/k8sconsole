@@ -20,6 +20,7 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/service"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/storageclass"
 	"golang.org/x/net/xsrftoken"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -58,6 +59,18 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/pod/{namespace}").
 			To(apiHandler.handleGetPods).
 			Writes(pod.PodList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/pod/{namespace}/{pod}").
+			To(apiHandler.handleGetPodDetail).
+			Writes(pod.PodDetail{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/pod/{namespace}/{pod}/event").
+			To(apiHandler.handleGetPodEvents).
+			Writes(common.EventList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/pod/{namespace}/{pod}/persistentvolumeclaim").
+			To(apiHandler.handleGetPodPersistentVolumeClaims).
+			Writes(persistentvolumeclaim.PersistentVolumeClaimList{}))
 
 	apiV1Ws.Route(
 		apiV1Ws.POST("/namespace").
@@ -199,6 +212,62 @@ func (apiHandler *APIHandler) handleGetPods(request *restful.Request, response *
 		kcErrors.HandleInternalError(response, err)
 	}
 
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetPodDetail(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("pod")
+	result, err := pod.GetPodDetail(k8sClient, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetPodEvents(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	log.Println("Getting events related to a pod in namespace")
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("pod")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := pod.GetEventsForPod(k8sClient, dsQuery, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetPodPersistentVolumeClaims(request *restful.Request,
+	response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	name := request.PathParameter("pod")
+	namespace := request.PathParameter("namespace")
+	dataSelect := parseDataSelectPathParameter(request)
+	result, err := persistentvolumeclaim.GetPodPersistentVolumeClaims(k8sClient,
+		namespace, name, dataSelect)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
 	response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 
