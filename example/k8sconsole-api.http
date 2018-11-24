@@ -171,4 +171,42 @@ GET http://localhost:9090/api/v1/persistentvolumeclaim/default/test
 Accept: application/json
 Cache-Control: no-cache
 
+########################################## Test CRUD storageclass #########################################
+### Test /api/v1/storageclass
+GET http://localhost:9090/api/v1/storageclass
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/storageclass/{storageclass}
+GET http://localhost:9090/api/v1/storageclass/test
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/storageclass/{storageclass}/persistentvolume
+GET http://localhost:9090/api/v1/storageclass/test/persistentvolume
+Accept: application/json
+Cache-Control: no-cache
+
+############################################# Test CRUD service ###########################################
+### Test /api/v1/service
+GET http://localhost:9090/api/v1/service
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/service/{namespace}
+GET http://localhost:9090/api/v1/service/default
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/service/{namespace}/{service}
+
+GET http://localhost:9090/api/v1/service/default/kubernetes
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/service/{namespace}/{service}/pod
+GET http://localhost:9090/api/v1/service/kube-system/kube-dns/pod
+Accept: application/json
+Cache-Control: no-cache
+
 ###
