@@ -41,7 +41,22 @@ Accept: application/json
 Cache-Control: no-cache
 
 ### Test /api/v1/pod/{namespace}
-GET http://localhost:9090/api/v1/pod/default
+GET http://localhost:9090/api/v1/pod/kube-system
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/pod/{namespace}/{pod}
+GET http://localhost:9090/api/v1/pod/kube-system/etcd-minikube
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/pod/{namespace}/{pod}/event
+GET http://localhost:9090/api/v1/pod/kube-system/etcd-minikube/event
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /api/v1/pod/{namespace}/{pod}/persistentvolumeclaim
+GET http://localhost:9090/api/v1/pod/kube-system/etcd-minikube/event
 Accept: application/json
 Cache-Control: no-cache
 
