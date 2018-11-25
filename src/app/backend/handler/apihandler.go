@@ -9,6 +9,7 @@ import (
 	kcErrors "github.com/wzt3309/k8sconsole/src/app/backend/errors"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/common"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/configmap"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/container"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/dataselect"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/event"
 	ns "github.com/wzt3309/k8sconsole/src/app/backend/resource/namespace"
@@ -63,6 +64,10 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/pod/{namespace}/{pod}").
 			To(apiHandler.handleGetPodDetail).
 			Writes(pod.PodDetail{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/pod/{namespace}/{pod}/container").
+			To(apiHandler.handleGetPodContainers).
+			Writes(container.PodContainerList{}))
 	apiV1Ws.Route(
 		apiV1Ws.GET("/pod/{namespace}/{pod}/event").
 			To(apiHandler.handleGetPodEvents).
@@ -229,6 +234,23 @@ func (apiHandler *APIHandler) handleGetPodDetail(request *restful.Request, respo
 		kcErrors.HandleInternalError(response, err)
 	}
 
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetPodContainers(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("pod")
+	result, err := container.GetPodContainers(k8sClient, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
 	response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 
