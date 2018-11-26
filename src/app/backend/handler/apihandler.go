@@ -19,9 +19,12 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/persistentvolume"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/persistentvolumeclaim"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/pod"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/rbacrolebindings"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/rbacroles"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/secret"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/service"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/storageclass"
+	"github.com/wzt3309/k8sconsole/src/app/backend/validation"
 	"golang.org/x/net/xsrftoken"
 	"log"
 	"net/http"
@@ -161,6 +164,19 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/node/{name}/pod").
 			To(apiHandler.handleGetNodePods).
 			Writes(pod.PodList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/rbac/role").
+			To(apiHandler.handleGetRbacRoleList).
+			Writes(rbacroles.RbacRoleList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/rbac/rolebinding").
+			To(apiHandler.handleGetRbacRoleBindingList).
+			Writes(rbacrolebindings.RbacRoleBindingList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/rbac/status").
+			To(apiHandler.handleRbacStatus).
+			Writes(validation.RbacStatus{}))
 
 	apiV1Ws.Route(
 		apiV1Ws.GET("/persistentvolume").
@@ -591,6 +607,56 @@ func (apiHandler *APIHandler) handleGetNodePods(request *restful.Request, respon
 	name := request.PathParameter("name")
 	dsQuery := parseDataSelectPathParameter(request)
 	result, err := node.GetNodePods(k8sClient, dsQuery, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetRbacRoleList(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := rbacroles.GetRbacRoleList(k8sClient, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetRbacRoleBindingList(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := rbacrolebindings.GetRbacRoleBindingList(k8sClient, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleRbacStatus(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	result, err := validation.ValidateRbacStatus(k8sClient)
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
 		return

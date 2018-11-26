@@ -259,3 +259,21 @@ Cache-Control: no-cache
 GET http://localhost:9090/api/v1/log/file/kube-system/etcd-minikube/etcd?previous=true
 Accept: application/json
 Cache-Control: no-cache
+
+############################################# Test rbac ###########################################
+### Test /rbac/role
+GET http://localhost:9090/api/v1/rbac/role
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /rbac/rolebinding
+GET http://localhost:9090/api/v1/rbac/rolebinding?filterBy=name,weave-net
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /rbac/status
+GET http://localhost:9090/api/v1/rbac/status
+Accept: application/json
+Cache-Control: no-cache
+
+###
