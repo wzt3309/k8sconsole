@@ -95,10 +95,6 @@ type LogLineId struct {
 	// timestamp of this line
 	LogTimestamp `json:"timestamp"`
 	// line number of the log
-	// Sometimes LogTimestamp appears 3 times in the logs and the line is 1nd line
-	// with this timestamp, then the line num will be 1 or -3 (1st from the beginning or 3rd from the end)
-	// so the 2nd line's lineNum will be 2 or -2, 3nd will be 3 or -1
-	// If timestamp is unique then it will be simply 1 or -1 (1st from beginning or 1st from the end, both same)
 	LineNum int `json:"lineNum"`
 }
 
