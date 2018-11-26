@@ -10,8 +10,10 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/common"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/configmap"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/container"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/controller"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/dataselect"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/event"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/logs"
 	ns "github.com/wzt3309/k8sconsole/src/app/backend/resource/namespace"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/node"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/persistentvolume"
@@ -194,6 +196,23 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/storageclass/{storageclass}/persistentvolume").
 			To(apiHandler.handleGetStorageClassPersistentVolumes).
 			Writes(persistentvolume.PersistentVolumeList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/log/source/{namespace}/{resourceName}/{resourceType}").
+			To(apiHandler.handleLogSource).
+			Writes(controller.LogSources{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/log/{namespace}/{pod}").
+			To(apiHandler.handleLogs).
+			Writes(logs.LogDetails{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/log/{namespace}/{pod}/{container}").
+			To(apiHandler.handleLogs).
+			Writes(logs.LogDetails{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/log/file/{namespace}/{pod}/{container}").
+			To(apiHandler.handleLogFile).
+			Writes(logs.LogDetails{}))
 	return wsContainer, nil
 }
 
@@ -693,6 +712,91 @@ func (apiHandler *APIHandler) handleGetStorageClassPersistentVolumes(request *re
 		return
 	}
 	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleLogSource(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	resourceName := request.PathParameter("resourceName")
+	resourceType := request.PathParameter("resourceType")
+	namespace := request.PathParameter("namespace")
+	logSources, err := logs.GetLogSources(k8sClient, namespace, resourceName, resourceType)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, logSources)
+}
+
+func (apiHandler *APIHandler) handleLogs(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	podID := request.PathParameter("pod")
+	containerID := request.PathParameter("container")
+
+	refTimestamp := request.QueryParameter("referenceTimestamp")
+	if refTimestamp == "" {
+		refTimestamp = logs.NewestTimestamp
+	}
+
+	refLineNum, err := strconv.Atoi(request.QueryParameter("referenceLineNum"))
+	if err != nil {
+		refLineNum = 0
+	}
+
+	usePreviousLogs := request.QueryParameter("previous") == "true"
+	offsetFrom, err1 := strconv.Atoi(request.QueryParameter("offsetFrom"))
+	offsetTo, err2 := strconv.Atoi(request.QueryParameter("offsetTo"))
+	logFilePosition := request.QueryParameter("logFilePosition")
+
+	logSelector := logs.DefaultSelector
+	if err1 == nil && err2 == nil {
+		logSelector = &logs.Selector{
+			ReferencePoint: logs.LogLineId{
+				LogTimestamp: logs.LogTimestamp(refTimestamp),
+				LineNum: refLineNum,
+			},
+			OffsetFrom: offsetFrom,
+			OffsetTo: offsetTo,
+			LogFilePosition: logFilePosition,
+		}
+	}
+
+	result, err := container.GetLogDetails(k8sClient, namespace, podID, containerID, logSelector, usePreviousLogs)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleLogFile(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	podID := request.PathParameter("pod")
+	containerID := request.PathParameter("container")
+	usePreviousLogs := request.QueryParameter("previous") == "true"
+
+	logStream, err := container.GetLogFile(k8sClient, namespace, podID, containerID, usePreviousLogs)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	handleDownload(response, logStream)
 }
 
 // Get namespaces from path parameter
