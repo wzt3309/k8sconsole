@@ -7,6 +7,7 @@ import (
 	authApi "github.com/wzt3309/k8sconsole/src/app/backend/auth/api"
 	clientApi "github.com/wzt3309/k8sconsole/src/app/backend/client/api"
 	kcErrors "github.com/wzt3309/k8sconsole/src/app/backend/errors"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/cluster"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/common"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/configmap"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/container"
@@ -56,6 +57,11 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("csrftoken/{action}").
 			To(apiHandler.handleGetCsrfToken).
 			Writes(api.CsrfToken{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/cluster").
+			To(apiHandler.handleGetCluster).
+			Writes(cluster.Cluster{}))
 
 	apiV1Ws.Route(
 		apiV1Ws.GET("/pod").
@@ -238,6 +244,23 @@ func (apiHandler *APIHandler) handleGetCsrfToken(request *restful.Request, respo
 	response.WriteHeaderAndEntity(http.StatusOK, api.CsrfToken{Token: token})
 }
 
+func (apiHandler *APIHandler) handleGetCluster(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := cluster.GetCluster(k8sClient, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
 func (apiHandler *APIHandler) handleGetPods(request *restful.Request, response *restful.Response) {
 	k8sClient, err := apiHandler.cManager.Client(request)
 	if err != nil {
@@ -250,6 +273,7 @@ func (apiHandler *APIHandler) handleGetPods(request *restful.Request, response *
 	result, err := pod.GetPodList(k8sClient, namespace, dsQuery)
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
+		return
 	}
 
 	response.WriteHeaderAndEntity(http.StatusOK, result)
@@ -267,6 +291,7 @@ func (apiHandler *APIHandler) handleGetPodDetail(request *restful.Request, respo
 	result, err := pod.GetPodDetail(k8sClient, namespace, name)
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
+		return
 	}
 
 	response.WriteHeaderAndEntity(http.StatusOK, result)

@@ -276,4 +276,10 @@ GET http://localhost:9090/api/v1/rbac/status
 Accept: application/json
 Cache-Control: no-cache
 
+############################################# Test cluster ###########################################
+### Test /rbac/cluster
+GET http://localhost:9090/api/v1/cluster
+Accept: application/json
+Cache-Control: no-cache
+
 ###
