@@ -1,4 +1,5 @@
 # k8sconsole
+[![Build Status](https://travis-ci.org/wzt3309/k8sconsole.svg?branch=master)](https://travis-ci.org/wzt3309/k8sconsole)
 A web ui which extends kubernetes dashboard.
 
 # k8sconsole API
