@@ -282,4 +282,70 @@ GET http://localhost:9090/api/v1/cluster
 Accept: application/json
 Cache-Control: no-cache
 
+############################################# Test replicaset ###########################################
+### Test /replicaset
+GET http://localhost:9090/api/v1/replicaset
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /replicaset/{namespace}
+GET http://localhost:9090/api/v1/replicaset/kube-system
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /replicaset/{namespace}/{replicaSet}
+GET http://localhost:9090/api/v1/replicaset/kube-system/kube-dns-b4bd9576
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /replicaset/{namespace}//{replicaSet}/pod
+GET http://localhost:9090/api/v1/replicaset/kube-system/kube-dns-b4bd9576/pod
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /replicaset/{namespace}//{replicaSet}/event
+GET http://localhost:9090/api/v1/replicaset/kube-system/kube-dns-b4bd9576/event
+Accept: application/json
+Cache-Control: no-cache
+
+############################################# Test replication controller ###########################################
+### Test /replicationcontroller
+GET http://localhost:9090/api/v1/replicationcontroller
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /replicationcontroller/{namespace}
+GET http://localhost:9090/api/v1/replicationcontroller/default
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /replicationcontroller/{namespace}/{replicationController}
+GET http://localhost:9090/api/v1/replicationcontroller/default/test
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /replicationcontroller/{namespace}/{replicationController}/update/pod
+POST http://localhost:9090/api/v1/replicationcontroller/default/test/update/pod
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+  "replicas": 3
+}
+
+### Test /replicationcontroller/{namespace}/{replicationController}/pod
+GET http://localhost:9090/api/v1/replicationcontroller/default/test/pod
+Content-Type: application/json
+Cache-Control: no-cache
+
+### Test /replicationcontroller/{namespace}/{replicationController}/event
+GET http://localhost:9090/api/v1/replicationcontroller/default/test/event
+Content-Type: application/json
+Cache-Control: no-cache
+
+### Test /replicationcontroller/{namespace}/{replicationController}/service
+GET http://localhost:9090/api/v1/replicationcontroller/default/test/service
+Content-Type: application/json
+Cache-Control: no-cache
+
 ###
