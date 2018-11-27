@@ -348,4 +348,30 @@ GET http://localhost:9090/api/v1/replicationcontroller/default/test/service
 Content-Type: application/json
 Cache-Control: no-cache
 
+############################################# Test deployment ###########################################
+### Test /deployment
+GET http://localhost:9090/api/v1/deployment
+Content-Type: application/json
+Cache-Control: no-cache
+
+### Test /deployment/{namespace}
+GET http://localhost:9090/api/v1/deployment/kube-system
+Content-Type: application/json
+Cache-Control: no-cache
+
+### Test /deployment/{namespace}/{deployment}
+GET http://localhost:9090/api/v1/deployment/kube-system/kube-dns
+Content-Type: application/json
+Cache-Control: no-cache
+
+### Test /deployment/{namespace}/{deployment}/event
+GET http://localhost:9090/api/v1/deployment/kube-system/kube-dns/event
+Content-Type: application/json
+Cache-Control: no-cache
+
+### Test /deployment/{namespace}/{deployment}
+GET http://localhost:9090/api/v1/deployment/kube-system/kube-dns/oldreplicaset
+Content-Type: application/json
+Cache-Control: no-cache
+
 ###
