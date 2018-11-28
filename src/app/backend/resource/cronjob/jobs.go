@@ -126,7 +126,7 @@ func TriggerCronJob(client kubernetes.Interface,
 
 	//job name cannot exceed DNS1053LabelMaxLength (52 characters)
 	var newJobName string
-	if (len(cronJob.Name) < 42) {
+	if len(cronJob.Name) < 42 {
 		newJobName = cronJob.Name + "-manual-" + rand.String(3)
 	} else {
 		newJobName = cronJob.Name[0:41] + "-manual-" + rand.String(3)
