@@ -15,6 +15,7 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/dataselect"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/deployment"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/event"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/ingress"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/logs"
 	ns "github.com/wzt3309/k8sconsole/src/app/backend/resource/namespace"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/node"
@@ -227,6 +228,19 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/service/{namespace}/{service}/pod").
 			To(apiHandler.handleGetServicePods).
 			Writes(pod.PodList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/ingress").
+			To(apiHandler.handleGetIngressList).
+			Writes(ingress.IngressList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/ingress/{namespace}").
+			To(apiHandler.handleGetIngressList).
+			Writes(ingress.IngressList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/ingress/{namespace}/{name}").
+			To(apiHandler.handleGetIngressDetail).
+			Writes(ingress.IngressDetail{}))
 
 	apiV1Ws.Route(
 		apiV1Ws.GET("/node").
@@ -949,6 +963,40 @@ func (apiHandler *APIHandler) handleGetServicePods(request *restful.Request, res
 	name := request.PathParameter("service")
 	dsQuery := parseDataSelectPathParameter(request)
 	result, err := service.GetServicePods(k8sClient, namespace, name, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetIngressList(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	dataSelect := parseDataSelectPathParameter(request)
+	namespace := parseNamespacePathParameter(request)
+	result, err := ingress.GetIngressList(k8sClient, namespace, dataSelect)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetIngressDetail(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("name")
+	result, err := ingress.GetIngressDetail(k8sClient, namespace, name)
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
 		return

@@ -374,4 +374,20 @@ GET http://localhost:9090/api/v1/deployment/kube-system/kube-dns/oldreplicaset
 Content-Type: application/json
 Cache-Control: no-cache
 
+############################################# Test ingress ###########################################
+### Test /ingress
+GET http://localhost:9090/api/v1/ingress
+Content-Type: application/json
+Cache-Control: no-cache
+
+### Test /ingress/{namespace}
+GET http://localhost:9090/api/v1/ingress/default
+Content-Type: application/json
+Cache-Control: no-cache
+
+### Test /ingress/{namespace}/{name}
+GET http://localhost:9090/api/v1/ingress/default/test
+Content-Type: application/json
+Cache-Control: no-cache
+
 ###
