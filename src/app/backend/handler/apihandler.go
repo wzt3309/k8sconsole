@@ -63,27 +63,32 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 			Writes(api.CsrfToken{}))
 
 	apiV1Ws.Route(
-		apiV1Ws.POST("/appdeployment").
+		apiV1Ws.POST("/deploy").
 			To(apiHandler.handleDeploy).
 			Reads(deployment.AppDeploymentSpec{}).
 			Writes(deployment.AppDeploymentSpec{}))
 	apiV1Ws.Route(
-		apiV1Ws.POST("/appdeployment/validate/name").
+		apiV1Ws.POST("/deployfromfile").
+			To(apiHandler.handleDeployFromFile).
+			Reads(deployment.AppDeploymentFromFileSpec{}).
+			Writes(deployment.AppDeploymentFromFileResponse{}))
+	apiV1Ws.Route(
+		apiV1Ws.POST("/deploy/validate/name").
 			To(apiHandler.handleNameValidity).
 			Reads(validation.AppNameValiditySpec{}).
 			Writes(validation.AppNameValidity{}))
 	apiV1Ws.Route(
-		apiV1Ws.POST("/appdeployment/validate/imagereference").
+		apiV1Ws.POST("/deploy/validate/imagereference").
 			To(apiHandler.handleImageReferenceValidity).
 			Reads(validation.ImageReferenceValiditySpec{}).
 			Writes(validation.ImageReferenceValidity{}))
 	apiV1Ws.Route(
-		apiV1Ws.POST("/appdeployment/validate/protocol").
+		apiV1Ws.POST("/deploy/validate/protocol").
 			To(apiHandler.handleProtocolValidity).
 			Reads(validation.ProtocolValiditySpec{}).
 			Writes(validation.ProtocolValidity{}))
 	apiV1Ws.Route(
-		apiV1Ws.GET("/appdeployment/protocols").
+		apiV1Ws.GET("/deploy/protocols").
 			To(apiHandler.handleGetAvailableProcotols).
 			Writes(deployment.Protocols{}))
 
@@ -171,11 +176,6 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/deployment").
 			To(apiHandler.handleGetDeployments).
 			Writes(deployment.DeploymentList{}))
-	apiV1Ws.Route(
-		apiV1Ws.POST("/appdeploymentfromfile").
-			To(apiHandler.handleDeployFromFile).
-			Reads(deployment.AppDeploymentFromFileSpec{}).
-			Writes(deployment.AppDeploymentFromFileResponse{}))
 	apiV1Ws.Route(
 		apiV1Ws.GET("/deployment/{namespace}").
 			To(apiHandler.handleGetDeployments).
