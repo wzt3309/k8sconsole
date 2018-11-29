@@ -745,4 +745,35 @@ DELETE http://localhost:9090/api/v1/_raw/namespace/name/development
 Accept: application/json
 Cache-Control: no-cache
 
+############################################# Test daemonset ###########################################
+### Test /daemonset
+GET http://localhost:9090/api/v1/daemonset
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /daemonset/{namespace}
+GET http://localhost:9090/api/v1/daemonset/kube-system
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /daemonset/{namespace}/{daemonSet}
+GET http://localhost:9090/api/v1/daemonset/kube-system/kube-proxy
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /daemonset/{namespace}/{daemonSet}/pod
+GET http://localhost:9090/api/v1/daemonset/kube-system/kube-proxy/pod
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /daemonset/{namespace}/{daemonSet}/service
+GET http://localhost:9090/api/v1/daemonset/kube-system/kube-proxy/service
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /daemonset/{namespace}/{daemonSet}/event
+GET http://localhost:9090/api/v1/daemonset/kube-system/kube-proxy/event
+Accept: application/json
+Cache-Control: no-cache
+
 ###

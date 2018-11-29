@@ -13,6 +13,7 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/container"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/controller"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/cronjob"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/daemonset"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/dataselect"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/deployment"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/event"
@@ -196,6 +197,31 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/deployment/{namespace}/{deployment}/oldreplicaset").
 			To(apiHandler.handleGetDeploymentOldReplicaSets).
 			Writes(replicaset.ReplicaSetList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset").
+			To(apiHandler.handleGetDaemonSetList).
+			Writes(daemonset.DaemonSetList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}").
+			To(apiHandler.handleGetDaemonSetList).
+			Writes(daemonset.DaemonSetList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}/{daemonSet}").
+			To(apiHandler.handleGetDaemonSetDetail).
+			Writes(daemonset.DaemonSetDetail{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}/{daemonSet}/pod").
+			To(apiHandler.handleGetDaemonSetPods).
+			Writes(pod.PodList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}/{daemonSet}/service").
+			To(apiHandler.handleGetDaemonSetServices).
+			Writes(service.ServiceList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}/{daemonSet}/event").
+			To(apiHandler.handleGetDaemonSetEvents).
+			Writes(common.EventList{}))
 
 	apiV1Ws.Route(
 		apiV1Ws.GET("/job").
@@ -932,6 +958,95 @@ func (apiHandler *APIHandler) handleGetDeploymentOldReplicaSets(request *restful
 	name := request.PathParameter("deployment")
 	dataSelect := parseDataSelectPathParameter(request)
 	result, err := deployment.GetDeploymentOldReplicaSets(k8sClient, dataSelect, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetList(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := parseNamespacePathParameter(request)
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := daemonset.GetDaemonSetList(k8sClient, namespace, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetDetail(
+	request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("daemonSet")
+	result, err := daemonset.GetDaemonSetDetail(k8sClient, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetPods(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("daemonSet")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := daemonset.GetDaemonSetPods(k8sClient, dsQuery, name, namespace)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetServices(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	daemonSet := request.PathParameter("daemonSet")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := daemonset.GetDaemonSetServices(k8sClient, dsQuery, namespace, daemonSet)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetEvents(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("daemonSet")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := event.GetResourceEvents(k8sClient, dsQuery, namespace, name)
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
 		return
