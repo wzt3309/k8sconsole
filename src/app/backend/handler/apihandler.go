@@ -34,6 +34,7 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/storageclass"
 	"github.com/wzt3309/k8sconsole/src/app/backend/validation"
 	"golang.org/x/net/xsrftoken"
+	"k8s.io/apimachinery/pkg/runtime"
 	"log"
 	"net/http"
 	"strconv"
@@ -357,6 +358,26 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/node/{name}/pod").
 			To(apiHandler.handleGetNodePods).
 			Writes(pod.PodList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.DELETE("/_raw/{kind}/namespace/{namespace}/name/{name}").
+			To(apiHandler.handleDeleteResource))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/_raw/{kind}/namespace/{namespace}/name/{name}").
+			To(apiHandler.handleGetResource))
+	apiV1Ws.Route(
+		apiV1Ws.PUT("/_raw/{kind}/namespace/{namespace}/name/{name}").
+			To(apiHandler.handlePutResource))
+
+	apiV1Ws.Route(
+		apiV1Ws.DELETE("/_raw/{kind}/name/{name}").
+			To(apiHandler.handleDeleteResource))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/_raw/{kind}/name/{name}").
+			To(apiHandler.handleGetResource))
+	apiV1Ws.Route(
+		apiV1Ws.PUT("/_raw/{kind}/name/{name}").
+			To(apiHandler.handlePutResource))
 
 	apiV1Ws.Route(
 		apiV1Ws.GET("/rbac/role").
@@ -1466,6 +1487,68 @@ func (apiHandler *APIHandler) handleGetNodePods(request *restful.Request, respon
 	}
 
 	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleDeleteResource(request *restful.Request, response *restful.Response) {
+	verber, err := apiHandler.cManager.VerberClient(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	kind := request.PathParameter("kind")
+	namespace, ok := request.PathParameters()["namespace"]
+	name := request.PathParameter("name")
+
+	if err := verber.Delete(kind, ok, namespace, name); err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeader(http.StatusOK)
+}
+
+func (apiHandler *APIHandler) handleGetResource(request *restful.Request, response *restful.Response) {
+	verber, err := apiHandler.cManager.VerberClient(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	kind := request.PathParameter("kind")
+	namespace, ok := request.PathParameters()["namespace"]
+	name := request.PathParameter("name")
+	result, err := verber.Get(kind, ok, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handlePutResource(request *restful.Request, response *restful.Response) {
+	verber, err := apiHandler.cManager.VerberClient(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	kind := request.PathParameter("kind")
+	namespace, ok := request.PathParameters()["namespace"]
+	name := request.PathParameter("name")
+	putSpec := &runtime.Unknown{}
+	if err := request.ReadEntity(putSpec); err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	if err := verber.Put(kind, ok, namespace, name, putSpec); err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	response.WriteHeader(http.StatusCreated)
 }
 
 func (apiHandler *APIHandler) handleGetRbacRoleList(request *restful.Request, response *restful.Response) {
