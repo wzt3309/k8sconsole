@@ -34,19 +34,21 @@ type Workloads struct {
 func GetWorkloads(client kubernetes.Interface, nsQuery *common.NamespaceQuery,
 	dsQuery *dataselect.DataSelectQuery) (*Workloads, error) {
 
-		glog.Info("Getting list of all workloads")
-		channels := &common.ResourceChannels{
-			DeploymentList:            common.GetDeploymentListChannel(client, nsQuery, 1),
-			ReplicaSetList:            common.GetReplicaSetListChannel(client, nsQuery, 1),
-			JobList:                   common.GetJobListChannel(client, nsQuery, 1),
-			CronJobList:               common.GetCronJobListChannel(client, nsQuery, 1),
-			ReplicationControllerList: common.GetReplicationControllerListChannel(client, nsQuery, 1),
-			PodList:                   common.GetPodListChannel(client, nsQuery, 1),
-			DaemonSetList:             common.GetDaemonSetListChannel(client, nsQuery, 1),
-			StatefulSetList:           common.GetStatefulSetListChannel(client, nsQuery, 1),
-		}
+	glog.Info("Getting list of all workloads")
+	channels := &common.ResourceChannels{
+		ReplicationControllerList: common.GetReplicationControllerListChannel(client, nsQuery, 1),
+		ReplicaSetList:            common.GetReplicaSetListChannel(client, nsQuery, 2),
+		JobList:                   common.GetJobListChannel(client, nsQuery, 1),
+		CronJobList:               common.GetCronJobListChannel(client, nsQuery, 1),
+		DeploymentList:            common.GetDeploymentListChannel(client, nsQuery, 1),
+		DaemonSetList:             common.GetDaemonSetListChannel(client, nsQuery, 1),
+		StatefulSetList:           common.GetStatefulSetListChannel(client, nsQuery, 1),
+		ServiceList:               common.GetServiceListChannel(client, nsQuery, 1),
+		PodList:                   common.GetPodListChannel(client, nsQuery, 7),
+		EventList:                 common.GetEventListChannel(client, nsQuery, 7),
+	}
 
-		return GetWorkloadsFromChannels(channels, dsQuery)
+	return GetWorkloadsFromChannels(channels, dsQuery)
 }
 
 func GetWorkloadsFromChannels(channels *common.ResourceChannels,
