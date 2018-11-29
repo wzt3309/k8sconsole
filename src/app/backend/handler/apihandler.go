@@ -9,18 +9,22 @@ import (
 	kcErrors "github.com/wzt3309/k8sconsole/src/app/backend/errors"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/cluster"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/common"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/config"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/configmap"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/container"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/controller"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/cronjob"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/daemonset"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/dataselect"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/deployment"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/discovery"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/event"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/ingress"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/job"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/logs"
 	ns "github.com/wzt3309/k8sconsole/src/app/backend/resource/namespace"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/node"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/overview"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/persistentvolume"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/persistentvolumeclaim"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/pod"
@@ -32,6 +36,7 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/service"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/statefulset"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/storageclass"
+	"github.com/wzt3309/k8sconsole/src/app/backend/resource/workload"
 	"github.com/wzt3309/k8sconsole/src/app/backend/validation"
 	"golang.org/x/net/xsrftoken"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -126,6 +131,33 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 			Writes(service.ServiceList{}))
 
 	apiV1Ws.Route(
+		apiV1Ws.GET("/workload").
+			To(apiHandler.handleGetWorkloads).
+			Writes(workload.Workloads{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/workload/{namespace}").
+			To(apiHandler.handleGetWorkloads).
+			Writes(workload.Workloads{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/discovery").
+			To(apiHandler.handleGetDiscovery).
+			Writes(discovery.Discovery{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/discovery/{namespace}").
+			To(apiHandler.handleGetDiscovery).
+			Writes(discovery.Discovery{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/config").
+			To(apiHandler.handleGetConfig).
+			Writes(config.Config{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/config/{namespace}").
+			To(apiHandler.handleGetConfig).
+			Writes(config.Config{}))
+
+	apiV1Ws.Route(
 		apiV1Ws.GET("/cluster").
 			To(apiHandler.handleGetCluster).
 			Writes(cluster.Cluster{}))
@@ -196,6 +228,31 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/deployment/{namespace}/{deployment}/oldreplicaset").
 			To(apiHandler.handleGetDeploymentOldReplicaSets).
 			Writes(replicaset.ReplicaSetList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset").
+			To(apiHandler.handleGetDaemonSetList).
+			Writes(daemonset.DaemonSetList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}").
+			To(apiHandler.handleGetDaemonSetList).
+			Writes(daemonset.DaemonSetList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}/{daemonSet}").
+			To(apiHandler.handleGetDaemonSetDetail).
+			Writes(daemonset.DaemonSetDetail{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}/{daemonSet}/pod").
+			To(apiHandler.handleGetDaemonSetPods).
+			Writes(pod.PodList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}/{daemonSet}/service").
+			To(apiHandler.handleGetDaemonSetServices).
+			Writes(service.ServiceList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/daemonset/{namespace}/{daemonSet}/event").
+			To(apiHandler.handleGetDaemonSetEvents).
+			Writes(common.EventList{}))
 
 	apiV1Ws.Route(
 		apiV1Ws.GET("/job").
@@ -443,6 +500,16 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/log/file/{namespace}/{pod}/{container}").
 			To(apiHandler.handleLogFile).
 			Writes(logs.LogDetails{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/overview/").
+			To(apiHandler.handleOverview).
+			Writes(overview.Overview{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/overview/{namespace}").
+			To(apiHandler.handleOverview).
+			Writes(overview.Overview{}))
 	return wsContainer, nil
 }
 
@@ -659,6 +726,57 @@ func (apiHandler *APIHandler) handleGetReplicationControllerServices(request *re
 	name := request.PathParameter("replicationController")
 	dataSelect := parseDataSelectPathParameter(request)
 	result, err := replicationcontroller.GetReplicationControllerServices(k8sClient, dataSelect, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetWorkloads(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	nsQuery := parseNamespacePathParameter(request)
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := workload.GetWorkloads(k8sClient, nsQuery, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDiscovery(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	nsQuery := parseNamespacePathParameter(request)
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := discovery.GetDiscovery(k8sClient, nsQuery, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetConfig(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	nsQuery := parseNamespacePathParameter(request)
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := config.GetConfig(k8sClient, nsQuery, dsQuery)
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
 		return
@@ -932,6 +1050,95 @@ func (apiHandler *APIHandler) handleGetDeploymentOldReplicaSets(request *restful
 	name := request.PathParameter("deployment")
 	dataSelect := parseDataSelectPathParameter(request)
 	result, err := deployment.GetDeploymentOldReplicaSets(k8sClient, dataSelect, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetList(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := parseNamespacePathParameter(request)
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := daemonset.GetDaemonSetList(k8sClient, namespace, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetDetail(
+	request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("daemonSet")
+	result, err := daemonset.GetDaemonSetDetail(k8sClient, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetPods(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("daemonSet")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := daemonset.GetDaemonSetPods(k8sClient, dsQuery, name, namespace)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetServices(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	daemonSet := request.PathParameter("daemonSet")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := daemonset.GetDaemonSetServices(k8sClient, dsQuery, namespace, daemonSet)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetDaemonSetEvents(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("daemonSet")
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := event.GetResourceEvents(k8sClient, dsQuery, namespace, name)
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
 		return
@@ -1799,6 +2006,23 @@ func (apiHandler *APIHandler) handleLogFile(request *restful.Request, response *
 		return
 	}
 	handleDownload(response, logStream)
+}
+
+func (apiHandler *APIHandler) handleOverview(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	nsQuery := parseNamespacePathParameter(request)
+	dsQuery := parseDataSelectPathParameter(request)
+	result, err := overview.GetOverview(k8sClient, nsQuery, dsQuery)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 
 // Get namespaces from path parameter
