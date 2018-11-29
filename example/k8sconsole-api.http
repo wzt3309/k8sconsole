@@ -776,4 +776,48 @@ GET http://localhost:9090/api/v1/daemonset/kube-system/kube-proxy/event
 Accept: application/json
 Cache-Control: no-cache
 
+############################################# Test workload ###########################################
+### Test /workload
+GET http://localhost:9090/api/v1/workload
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /workload/{namespace}
+GET http://localhost:9090/api/v1/workload/default
+Accept: application/json
+Cache-Control: no-cache
+
+############################################# Test config ###########################################
+### Test /config
+GET http://localhost:9090/api/v1/config
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /config/{namespace}
+GET http://localhost:9090/api/v1/config/default
+Accept: application/json
+Cache-Control: no-cache
+
+############################################# Test discovery ###########################################
+### Test /discovery
+GET http://localhost:9090/api/v1/discovery
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /discovery/{namespace}
+GET http://localhost:9090/api/v1/discovery/default
+Accept: application/json
+Cache-Control: no-cache
+
+############################################# Test overview ###########################################
+### Test /overview
+GET http://localhost:9090/api/v1/overview
+Accept: application/json
+Cache-Control: no-cache
+
+### Test /overview/{namespace}
+GET http://localhost:9090/api/v1/overview/default
+Accept: application/json
+Cache-Control: no-cache
+
 ###
