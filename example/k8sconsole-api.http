@@ -820,4 +820,15 @@ GET http://localhost:9090/api/v1/overview/default
 Accept: application/json
 Cache-Control: no-cache
 
+############################################# Test scale ###########################################
+### Test /scale/{kind}/{namespace}/{name}
+PUT http://localhost:9090/api/v1/scale/deployment/default/nginx?scaleBy=2
+Content-Type: application/json
+Cache-Control: no-cach
+
+### Test /scale/{kind}/{namespace}/{name}
+GET http://localhost:9090/api/v1/scale/deployment/default/nginx
+Accept: application/json
+Cache-Control: no-cach
+
 ###

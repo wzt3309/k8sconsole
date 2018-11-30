@@ -37,6 +37,7 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/statefulset"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/storageclass"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/workload"
+	"github.com/wzt3309/k8sconsole/src/app/backend/scale"
 	"github.com/wzt3309/k8sconsole/src/app/backend/validation"
 	"golang.org/x/net/xsrftoken"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -228,6 +229,15 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/deployment/{namespace}/{deployment}/oldreplicaset").
 			To(apiHandler.handleGetDeploymentOldReplicaSets).
 			Writes(replicaset.ReplicaSetList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.PUT("/scale/{kind}/{namespace}/{name}/").
+			To(apiHandler.handleScaleResource).
+			Writes(scale.ReplicaCounts{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/scale/{kind}/{namespace}/{name}").
+			To(apiHandler.handleGetReplicaCount).
+			Writes(scale.ReplicaCounts{}))
 
 	apiV1Ws.Route(
 		apiV1Ws.GET("/daemonset").
@@ -1055,6 +1065,43 @@ func (apiHandler *APIHandler) handleGetDeploymentOldReplicaSets(request *restful
 		return
 	}
 	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleScaleResource(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	kind := request.PathParameter("kind")
+	name := request.PathParameter("name")
+	count := request.QueryParameter("scaleBy")
+	replicaCountSpec, err := scale.ScaleResource(k8sClient, kind, namespace, name, count)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, replicaCountSpec)
+}
+
+func (apiHandler *APIHandler) handleGetReplicaCount(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	kind := request.PathParameter("kind")
+	name := request.PathParameter("name")
+	scaleSpec, err := scale.GetScaleSpec(k8sClient, kind, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, scaleSpec)
 }
 
 func (apiHandler *APIHandler) handleGetDaemonSetList(request *restful.Request, response *restful.Response) {
