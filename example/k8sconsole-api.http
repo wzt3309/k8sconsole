@@ -831,4 +831,20 @@ GET http://localhost:9090/api/v1/scale/deployment/default/nginx
 Accept: application/json
 Cache-Control: no-cach
 
+############################################# Test horizontalpodautoscaler ###########################################
+### Test /horizontalpodautoscaler
+GET http://localhost:9090/api/v1/horizontalpodautoscaler
+Accept: application/json
+Cache-Control: no-cach
+
+### Test /horizontalpodautoscaler/{namespace}
+GET http://localhost:9090/api/v1/horizontalpodautoscaler/default
+Accept: application/json
+Cache-Control: no-cach
+
+### Test /horizontalpodautoscaler/{namespace}/{horizontalpodautoscaler}
+GET http://localhost:9090/api/v1/horizontalpodautoscaler/default/test
+Accept: application/json
+Cache-Control: no-cach
+
 ###

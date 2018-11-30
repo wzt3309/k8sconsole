@@ -19,6 +19,7 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/deployment"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/discovery"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/event"
+	hpa "github.com/wzt3309/k8sconsole/src/app/backend/resource/horizontalpodautoscaler"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/ingress"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/job"
 	"github.com/wzt3309/k8sconsole/src/app/backend/resource/logs"
@@ -263,6 +264,19 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/daemonset/{namespace}/{daemonSet}/event").
 			To(apiHandler.handleGetDaemonSetEvents).
 			Writes(common.EventList{}))
+
+	apiV1Ws.Route(
+		apiV1Ws.GET("/horizontalpodautoscaler").
+			To(apiHandler.handleGetHorizontalPodAutoscalerList).
+			Writes(hpa.HorizontalPodAutoscalerList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/horizontalpodautoscaler/{namespace}").
+			To(apiHandler.handleGetHorizontalPodAutoscalerList).
+			Writes(hpa.HorizontalPodAutoscalerList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/horizontalpodautoscaler/{namespace}/{horizontalpodautoscaler}").
+			To(apiHandler.handleGetHorizontalPodAutoscalerDetail).
+			Writes(hpa.HorizontalPodAutoscalerDetail{}))
 
 	apiV1Ws.Route(
 		apiV1Ws.GET("/job").
@@ -1186,6 +1200,40 @@ func (apiHandler *APIHandler) handleGetDaemonSetEvents(request *restful.Request,
 	name := request.PathParameter("daemonSet")
 	dsQuery := parseDataSelectPathParameter(request)
 	result, err := event.GetResourceEvents(k8sClient, dsQuery, namespace, name)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetHorizontalPodAutoscalerList(request *restful.Request,
+	response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := parseNamespacePathParameter(request)
+	result, err := hpa.GetHorizontalPodAutoscalerList(k8sClient, namespace)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetHorizontalPodAutoscalerDetail(request *restful.Request, response *restful.Response) {
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	namespace := request.PathParameter("namespace")
+	name := request.PathParameter("horizontalpodautoscaler")
+	result, err := hpa.GetHorizontalPodAutoscalerDetail(k8sClient, namespace, name)
 	if err != nil {
 		kcErrors.HandleInternalError(response, err)
 		return
