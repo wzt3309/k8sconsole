@@ -42,6 +42,7 @@ import (
 	"github.com/wzt3309/k8sconsole/src/app/backend/validation"
 	"golang.org/x/net/xsrftoken"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/remotecommand"
 	"log"
 	"net/http"
 	"strconv"
@@ -205,6 +206,10 @@ func CreateHTTPAPIHandler(cManager clientApi.ClientManager, authManager authApi.
 		apiV1Ws.GET("/pod/{namespace}/{pod}/event").
 			To(apiHandler.handleGetPodEvents).
 			Writes(common.EventList{}))
+	apiV1Ws.Route(
+		apiV1Ws.GET("/pod/{namespace}/{pod}/{shell}/{container}").
+			To(apiHandler.handleExecShell).
+			Writes(TerminalResponse{}))
 	apiV1Ws.Route(
 		apiV1Ws.GET("/pod/{namespace}/{pod}/persistentvolumeclaim").
 			To(apiHandler.handleGetPodPersistentVolumeClaims).
@@ -988,6 +993,35 @@ func (apiHandler *APIHandler) handleGetPodEvents(request *restful.Request, respo
 		return
 	}
 	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleExecShell(request *restful.Request, response *restful.Response) {
+	sessionId, err := getTerminalSessionId()
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	k8sClient, err := apiHandler.cManager.Client(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	cfg, err := apiHandler.cManager.Config(request)
+	if err != nil {
+		kcErrors.HandleInternalError(response, err)
+		return
+	}
+
+	terminalSessions[sessionId] = TerminalSession{
+		id: sessionId,
+		bound: make(chan error),
+		sizeChan: make(chan remotecommand.TerminalSize),
+	}
+	go WaitForTerminal(k8sClient, cfg, request, sessionId)
+	response.WriteHeaderAndEntity(http.StatusOK, TerminalResponse{Id: sessionId})
+
 }
 
 func (apiHandler *APIHandler) handleGetPodPersistentVolumeClaims(request *restful.Request,

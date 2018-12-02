@@ -847,4 +847,15 @@ GET http://localhost:9090/api/v1/horizontalpodautoscaler/default/test
 Accept: application/json
 Cache-Control: no-cach
 
+############################################# Test sockjs ###########################################
+### Test /pod/{namespace}/{pod}/{shell}/{container}
+### kubectl run -i -t busybox --image=busybox --restart=Never
+GET http://localhost:9090/api/v1/pod/default/busybox/bash/busybox
+Accept: application/json
+Cache-Control: no-cach
+
 ###
+GET http://localhost:9090/api/sockjs
+Accept: application/json
+Cache-Control: no-cach
+
