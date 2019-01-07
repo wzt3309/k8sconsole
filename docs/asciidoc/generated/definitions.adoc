@@ -1,0 +1,1294 @@
+
+[[_definitions]]
+== Definitions
+
+[[_authresponse]]
+=== AuthResponse
+AuthResponse represents the response returned from k8sconsole backend for login requests. It contains generated
+jweToken and a list of non-critical errors such as 'Failed authentication' to tell the frontend what unexpected
+happened during login request.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*jweToken* +
+_required_||<<_jwe,JWE>>
+|===
+
+
+[[_condition]]
+=== Condition
+Condition represents a single condition of a node or pod. e.g. v1.Pod.Status.Condition
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*lastProbeTime* +
+_required_|Last probe time of a condition|string
+|*lastTransitionTime* +
+_required_|Last transition time of a condition|string
+|*message* +
+_required_|Message of a condition|string
+|*reason* +
+_required_|Reason of a condition|string
+|*status* +
+_required_|Status of condition|enum (True, False, Unknown)
+|*type* +
+_required_|Type of condition|string
+|===
+
+
+[[_configmap]]
+=== ConfigMap
+ConfigMap API resource provides mechanisms to inject containers with configuration data while keeping
+containers agnostic of Kubernetes
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_configmapdetail]]
+=== ConfigMapDetail
+ConfigMapDetail API resource provides mechanisms to inject containers with configuration data while keeping
+containers agnostic of Kubernetes
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*data* +
+_required_|Data contains the configuration data. Each key must be a valid DNS_SUBDOMAIN with an optional leading dot.|< string, string > map
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_configmaplist]]
+=== ConfigMapList
+ConfigMapList contains a list of Config Maps in the cluster
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*items* +
+_required_||< <<_configmap,ConfigMap>> > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|===
+
+
+[[_containerstate]]
+=== ContainerState
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*running* +
+_optional_||<<_containerstate_running,running>>
+|*terminated* +
+_optional_||<<_containerstateterminated,ContainerStateTerminated>>
+|*waiting* +
+_optional_||<<_containerstatewaiting,ContainerStateWaiting>>
+|===
+
+[[_containerstate_running]]
+*running*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*startedAt* +
+_optional_|Time at which the container was last (re-)started|string
+|===
+
+
+[[_containerstateterminated]]
+=== ContainerStateTerminated
+ContainerStateTerminated is a terminated state of a container
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*containerID* +
+_optional_|Container's ID in the format 'docker://<container_id>'|string(uuid)
+|*exitCode* +
+_optional_|Exit status from the last termination of the container|integer
+|*finishedAt* +
+_optional_|Time at which the container last terminated|string
+|*message* +
+_optional_|Message regarding the last termination of the container|string
+|*reason* +
+_optional_|(brief) Reason from the last termination of the container|string
+|*signal* +
+_optional_|Signal from the last termination of the container|integer
+|*startedAt* +
+_optional_|Time at which previous execution of the container started|string
+|===
+
+
+[[_containerstatewaiting]]
+=== ContainerStateWaiting
+ContainerStateWaiting is a waiting state of a container
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*message* +
+_optional_|Message regarding why the container is not yet running|string
+|*reason* +
+_optional_|(brief) Reason the container is not yet running|string
+|===
+
+
+[[_endpoint]]
+=== Endpoint
+Endpoint describes an endpoint that is host and a list of available ports for that host
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*host* +
+_required_|Hostname, either as a domain name or IP address|string
+|*ports* +
+_required_||<<_serviceport,ServicePort>>
+|===
+
+
+[[_endpointlist]]
+=== EndpointList
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*endpoints* +
+_required_||< <<_endpoint,Endpoint>> > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|===
+
+
+[[_event]]
+=== Event
+Event of k8s
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*count* +
+_required_|The number of times this event has occurred|integer(int32)
+|*firstSeen* +
+_required_|The time at which the event was first occurred|string(date-time)
+|*lastSeen* +
+_required_|The time at which the event was last occurred|string(date-time)
+|*message* +
+_required_|A human-readable description of the status of related object|string
+|*object* +
+_required_|An object triggered an event|string
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*reason* +
+_required_|Short, machine-understandable string that gives the reason for this event being generated|string
+|*sourceComponent* +
+_required_|Component from which the event is generated|string
+|*sourceHost* +
+_required_|Host name on which the event is generated|string
+|*type* +
+_required_|Event type|string
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_eventlist]]
+=== EventList
+The list of k8s events
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*events* +
+_required_||< <<_event,Event>> > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|===
+
+
+[[_jwe]]
+=== JWE
+JWE is the body of jweToken is a token generated during login request that contains auth info data in the payload.
+We don't need to care about the content of jweToken in the frontend or client.
+
+When we use other api, we need to put the jweToken in the request http header otherwise we will be returned
+code 403.
+
+*Note.* we don't have to use jweToken auth in the dev version(v0.0.1) to get resources.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*add* +
+_optional_||string(byte)
+|*ciphertext* +
+_required_||string(byte)
+|*encrypted_key* +
+_required_||string(byte)
+|*iv* +
+_required_||string(byte)
+|*protected* +
+_required_||string(byte)
+|===
+
+
+[[_limitrangeitem]]
+=== LimitRangeItem
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*default* +
+_optional_|Default resource requirement limit value by resource name.|string
+|*defaultRequest* +
+_optional_|DefaultRequest resource requirement request value by resource name|string
+|*max* +
+_optional_|Max usage constraints on this kind by resource name|string
+|*maxLimitRequestRatio* +
+_optional_|MaxLimitRequestRatio represents the max burst value for the named resource|string
+|*min* +
+_optional_|Min usage constraints on this kind by resource name|string
+|*resourceName* +
+_optional_|ResourceName usage constraints on this kind by resource name|string
+|*resourceType* +
+_optional_|ResourceType of resource that this limit applies to|string
+|===
+
+
+[[_listmeta]]
+=== ListMeta
+ListMeta describes list of objects.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*totalItems* +
+_required_|Total number of items in list|integer
+|===
+
+
+[[_loginspec]]
+=== LoginSpec
+LoginSpec is extracted from request coming from k8sconsole frontend during loging request. It contains all
+information required to authenticate user.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*kubeConfig* +
+_optional_|KubeConfig is the content of users' kubeconfig file. We can extract all auth information from the data in the file.|string
+|*passowrd* +
+_optional_|Use basic mode, need with username.|string
+|*token* +
+_optional_|Can use `kubectl describe secret ...` get the token for the default service account. +
+*Example* : `"test-token"`|string
+|*username* +
+_optional_|Use basic mode, need with password.|string
+|===
+
+
+[[_namespace]]
+=== Namespace
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*phase* +
+_required_||enum (Active, Terminating)
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_namespacedetail]]
+=== NamespaceDetail
+NamespaceDetail is a presentation layer view of Kubernetes Namespace resource. This means it is Namespace plus
+additional augmented data we can get from other sources.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*eventList* +
+_required_||<<_eventlist,EventList>>
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*phase* +
+_required_||enum (Active, Terminating)
+|*resourceLimits* +
+_required_|ResourceLimits is list of limit ranges associated to the namespace|< <<_limitrangeitem,LimitRangeItem>> > array
+|*resourceQuotaList* +
+_required_||<<_resourcequotadetaillist,ResourceQuotaDetailList>>
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_namespacelist]]
+=== NamespaceList
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|*namespaces* +
+_required_||< <<_namespace,Namespace>> > array
+|===
+
+
+[[_node]]
+=== Node
+Node is a presentation layer view of kubernetes nodes
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*allocatedResources* +
+_required_||<<_nodeallocatedresources,NodeAllocatedResources>>
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*ready* +
+_required_|These are valid condition statuses. "True" means a resource is in the condition.
+"False" means a resource is not in the condition. "Unknown" means kubernetes
+can't decide if a resource is in the condition or not.|enum (True, False, Unknown)
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_nodeaddress]]
+=== NodeAddress
+NodeAddress contains information for the node's address
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*address* +
+_required_|The node address|string
+|*type* +
+_required_||enum (Hostname, ExternalIP, InternalIP, ExternalDNS, InternalDNS)
+|===
+
+
+[[_nodeallocatedresources]]
+=== NodeAllocatedResources
+NodeAllocatedResources describes node allocated resources
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*allocatedPods* +
+_required_|AllocatedPods in number of currently allocated pods on the node|integer
+|*cpuCapacity* +
+_required_|CPUCapacity is specified node CPU capacity in millicores|integer(int64)
+|*cpuLimits* +
+_required_|CPULimits is defined CPU limit|integer(int64)
+|*cpuLimitsFraction* +
+_required_|CPULimitsFraction is a fraction of defined CPU limit.
+Note. can be over 100%, i.e. overcommitted.|number(double)
+|*cpuRequestFraction* +
+_required_|CPURequestsFraction is a fraction of CPU, that is allocated|number(double)
+|*cpuRequests* +
+_required_|Kubernetes has a new metric called Millicores that is used to measure CPU usage.
+It is a CPU core split into 1000 units (milli = 1000).
+- 1. 1 cpu with 1 core has 1000m
+- 2. 1 cpu with 2 core has 2*1000m = 2000m
+
+CPURequests is number of allocated millicores|integer(int64)
+|*memoryCapacity* +
+_required_|MemoryCapacity is specified node memory capacity in bytes|integer(int64)
+|*memoryLimits* +
+_required_|MemoryLimits is defined memory limit|integer(int64)
+|*memoryLimitsFraction* +
+_required_|MemoryLimitsFraction is a fraction of defined memory limit, can be over 100%, i.e. overcommitted|number(double)
+|*memoryRequests* +
+_required_|MemoryRequests is a fraction of memory, that is allocated|integer(int64)
+|*memoryRequestsFraction* +
+_required_|MemoryRequestsFraction is a fraction of memory, that is allocated|number(double)
+|*podCapacity* +
+_required_|PodCapacity is maximum number of pods, that can be allocated on the node|integer(int64)
+|*podFraction* +
+_required_|PodFraction is a fraction of pods, that can be allocated on given node|number(double)
+|===
+
+
+[[_nodedetail]]
+=== NodeDetail
+NodeDetail is a presentation layer view of Kubernetes Node resource. This means it is Node plus
+additional augmented data we can get from other sources.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*address* +
+_optional_||<<_nodeaddress,NodeAddress>>
+|*allocatedResources* +
+_required_||<<_nodeallocatedresources,NodeAllocatedResources>>
+|*conditions* +
+_required_||<<_condition,Condition>>
+|*containerImages* +
+_required_||< string > array
+|*errors* +
+_required_||< string > array
+|*eventList* +
+_required_||<<_eventlist,EventList>>
+|*nodeInfo* +
+_required_||<<_nodedetail_nodeinfo,nodeInfo>>
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*phase* +
+_required_|The three valid phases of node:
+* Pending - the node has been created/added by the system, but not configured
+* Running - the node has been configured and has Kubernetes components running
+* Terminated - the node has been removed from the cluster|enum (Pending, Running, Terminated)
+|*podCIDR* +
+_required_|PodCIDR represents the pod IP range assigned to the node|string
+|*podList* +
+_required_||<<_podlist,PodList>>
+|*providerID* +
+_required_|ID of the node assigned by the cloud provider|string
+|*taints* +
+_optional_|The node this Taint is attached to has the "effect" on any pod that does not tolerate the Taint|<<_nodedetail_taints,taints>>
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|*unschedulable* +
+_required_|Unschedulable controls node schedulability of new pods. By default node is schedulable|boolean
+|===
+
+[[_nodedetail_nodeinfo]]
+*nodeInfo*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*architecture* +
+_optional_|The Architecture reported by the node|string
+|*bootID* +
+_optional_|Boot ID reported by the node|string
+|*containerRuntimeVersion* +
+_optional_|ContainerRuntime Version reported by the node through runtime remote API (e.g. docker://1.5.0)|string
+|*kernelVersion* +
+_optional_|Kernel Version reported by the node from 'uname -r' (e.g. 3.16.0-0.bpo.4-amd64)|string
+|*kubeProxyVersion* +
+_optional_|KubeProxy Version reported by the node|string
+|*kubeletVersion* +
+_optional_|Kubelet Version reported by the node|string
+|*machineID* +
+_optional_|MachineID reported by the node. For unique machine identification
+in the cluster this field is preferred. Learn more from man(5)
+machine-id: http://man7.org/linux/man-pages/man5/machine-id.5.html|string
+|*operatingSystem* +
+_optional_|The Operating System reported by the node|string
+|*osImage* +
+_optional_|OS Image reported by the node from /etc/os-release (e.g. Debian GNU/Linux 7 (wheezy))|string
+|*systemUUID* +
+_optional_|SystemUUID reported by the node. For unique machine identification
+MachineID is preferred. This field is specific to Red Hat hosts
+https://access.redhat.com/documentation/en-US/Red_Hat_Subscription_Management/1/html/RHSM/getting-system-uuid.html|string
+|===
+
+[[_nodedetail_taints]]
+*taints*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*effect* +
+_required_|The effect of the taint on pods that do not tolerate the taint.
+Valid effects are NoSchedule, PreferNoSchedule and NoExecute.|enum (NoSchedule, PreferNoSchedule, NoExecute)
+|*key* +
+_required_|The taint key to be applied to a node|string
+|*timeAdded* +
+_optional_|TimeAdded represents the time at which the taint was added.
+It is only written for NoExecute taints|string(date-time)
+|*value* +
+_optional_|The taint value corresponding to the taint key|string
+|===
+
+
+[[_nodelist]]
+=== NodeList
+NodeList contains a list of nodes in the cluster
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|*nodes* +
+_required_||< <<_node,Node>> > array
+|===
+
+
+[[_objectmeta]]
+=== ObjectMeta
+ObjectMeta is metadata about an instance of resource
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*annotations* +
+_required_|Annotations are unstructured key value data stored with a resource that be set by external tooling.|object
+|*creationTimestamp* +
+_required_||string(date-time)
+|*labels* +
+_required_|Labels are k-v pairs that may be scope and select individual resources.|object
+|*name* +
+_required_|Object name and the name is unique within a namespace|string
+|*namespace* +
+_required_|Any empty namespace equivalent to the 'default' namespace.
+Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty|string
+|===
+
+
+[[_persistentvolume]]
+=== PersistentVolume
+PersistentVolume provides the simplified presentation layer view of kubernetes Persistent Volume resource.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*accessModes* +
+_required_||enum (ReadWriteOnce, ReadOnlyMany, ReadWriteMany)
+|*capacity* +
+_required_||< string, <<_persistentvolume_capacity,capacity>> > map
+|*claim* +
+_required_||string
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*reason* +
+_required_||string
+|*reclaimPolicy* +
+_required_||enum (Recycle, Delete, Retain)
+|*status* +
+_required_||enum (Pending, Available, Bound, Released, Failed)
+|*storageClass* +
+_required_||string
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+[[_persistentvolume_capacity]]
+*capacity*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*d* +
+_optional_|d is the quantity in inf.Dec form if d.Dec != nil|<<_persistentvolume_d,d>>
+|*format* +
+_optional_|Change Format at will. See the comment for Canonicalize for more details.|enum (DecimalExponent, BinarySI, DecimalSI)
+|*i* +
+_optional_|i is the quantity in int64 scaled form, if d.Dec == nil|<<_persistentvolume_i,i>>
+|*s* +
+_optional_|s is the generated value of this quantity to avoid recalculation|string
+|===
+
+[[_persistentvolume_d]]
+*d*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*scale* +
+_optional_|Scale represents the type used for the scale of a Dec.|integer(int32)
+|*unscaled* +
+_optional_|An Int represents a signed multi-precision integer.
+The zero value for an Int represents the value 0.|<<_persistentvolume_d_unscaled,unscaled>>
+|===
+
+[[_persistentvolume_d_unscaled]]
+*unscaled*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*abs* +
+_optional_||integer
+|*neg* +
+_optional_||boolean
+|===
+
+[[_persistentvolume_i]]
+*i*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*scale* +
+_optional_|Scale is used for getting and setting the base-10 scaled value.
+
+Base-2 scales are omitted for mathematical simplicity.
+
+See Quantity.ScaledValue for more details.|integer
+|*value* +
+_optional_||integer(int64)
+|===
+
+
+[[_persistentvolumeclaim]]
+=== PersistentVolumeClaim
+PersistentVolumeClaim provides the simplified presentation layer view of Kubernetes Persistent Volume Claim
+resource.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*accessModes* +
+_required_||enum (ReadWriteOnce, ReadOnlyMany, ReadWriteMany)
+|*capacity* +
+_required_||< string, <<_persistentvolumeclaim_capacity,capacity>> > map
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*status* +
+_required_||enum (Pending, Available, Bound, Released, Failed)
+|*storageClass* +
+_required_||string
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|*volume* +
+_required_||string
+|===
+
+[[_persistentvolumeclaim_capacity]]
+*capacity*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*d* +
+_optional_|d is the quantity in inf.Dec form if d.Dec != nil|<<_persistentvolumeclaim_d,d>>
+|*format* +
+_optional_|Change Format at will. See the comment for Canonicalize for more details.|enum (DecimalExponent, BinarySI, DecimalSI)
+|*i* +
+_optional_|i is the quantity in int64 scaled form, if d.Dec == nil|<<_persistentvolumeclaim_i,i>>
+|*s* +
+_optional_|s is the generated value of this quantity to avoid recalculation|string
+|===
+
+[[_persistentvolumeclaim_d]]
+*d*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*scale* +
+_optional_|Scale represents the type used for the scale of a Dec.|integer(int32)
+|*unscaled* +
+_optional_|An Int represents a signed multi-precision integer.
+The zero value for an Int represents the value 0.|<<_persistentvolumeclaim_d_unscaled,unscaled>>
+|===
+
+[[_persistentvolumeclaim_d_unscaled]]
+*unscaled*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*abs* +
+_optional_||integer
+|*neg* +
+_optional_||boolean
+|===
+
+[[_persistentvolumeclaim_i]]
+*i*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*scale* +
+_optional_|Scale is used for getting and setting the base-10 scaled value.
+
+Base-2 scales are omitted for mathematical simplicity.
+
+See Quantity.ScaledValue for more details.|integer
+|*value* +
+_optional_||integer(int64)
+|===
+
+
+[[_persistentvolumeclaimdetail]]
+=== PersistentVolumeClaimDetail
+PersistentVolumeClaimDetail provides the presentation layer view of Kubernetes Persistent Volume Claim resource.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*accessModes* +
+_required_||enum (ReadWriteOnce, ReadOnlyMany, ReadWriteMany)
+|*capacity* +
+_required_||< string, <<_persistentvolumeclaimdetail_capacity,capacity>> > map
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*status* +
+_required_||enum (Pending, Available, Bound, Released, Failed)
+|*storageClass* +
+_required_||string
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|*volume* +
+_required_||string
+|===
+
+[[_persistentvolumeclaimdetail_capacity]]
+*capacity*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*d* +
+_optional_|d is the quantity in inf.Dec form if d.Dec != nil|<<_persistentvolumeclaimdetail_d,d>>
+|*format* +
+_optional_|Change Format at will. See the comment for Canonicalize for more details.|enum (DecimalExponent, BinarySI, DecimalSI)
+|*i* +
+_optional_|i is the quantity in int64 scaled form, if d.Dec == nil|<<_persistentvolumeclaimdetail_i,i>>
+|*s* +
+_optional_|s is the generated value of this quantity to avoid recalculation|string
+|===
+
+[[_persistentvolumeclaimdetail_d]]
+*d*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*scale* +
+_optional_|Scale represents the type used for the scale of a Dec.|integer(int32)
+|*unscaled* +
+_optional_|An Int represents a signed multi-precision integer.
+The zero value for an Int represents the value 0.|<<_persistentvolumeclaimdetail_d_unscaled,unscaled>>
+|===
+
+[[_persistentvolumeclaimdetail_d_unscaled]]
+*unscaled*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*abs* +
+_optional_||integer
+|*neg* +
+_optional_||boolean
+|===
+
+[[_persistentvolumeclaimdetail_i]]
+*i*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*scale* +
+_optional_|Scale is used for getting and setting the base-10 scaled value.
+
+Base-2 scales are omitted for mathematical simplicity.
+
+See Quantity.ScaledValue for more details.|integer
+|*value* +
+_optional_||integer(int64)
+|===
+
+
+[[_persistentvolumeclaimlist]]
+=== PersistentVolumeClaimList
+PersistentVolumeClaimList contains a list of Persistent Volume Claims in the cluster.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*items* +
+_required_||< <<_persistentvolumeclaim,PersistentVolumeClaim>> > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|===
+
+
+[[_persistentvolumedetail]]
+=== PersistentVolumeDetail
+PersistentVolumeDetail provides the presentation layer view of kubernetes Persistent Volume resource.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*accessModes* +
+_required_||enum (ReadWriteOnce, ReadOnlyMany, ReadWriteMany)
+|*capacity* +
+_required_||< string, <<_persistentvolumedetail_capacity,capacity>> > map
+|*claim* +
+_required_||string
+|*message* +
+_required_||string
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*persistentVolumeSource* +
+_required_|PersistentVolumeSource is similar to VolumeSource but meant for the administrator who creates PVs.
+Exactly one of its members must be set.
+
+See k8s.io/api/core/v1/types.go|object
+|*reason* +
+_required_||string
+|*reclaimPolicy* +
+_required_||enum (Recycle, Delete, Retain)
+|*status* +
+_required_||enum (Pending, Available, Bound, Released, Failed)
+|*storageClass* +
+_required_||string
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+[[_persistentvolumedetail_capacity]]
+*capacity*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*d* +
+_optional_|d is the quantity in inf.Dec form if d.Dec != nil|<<_persistentvolumedetail_d,d>>
+|*format* +
+_optional_|Change Format at will. See the comment for Canonicalize for more details.|enum (DecimalExponent, BinarySI, DecimalSI)
+|*i* +
+_optional_|i is the quantity in int64 scaled form, if d.Dec == nil|<<_persistentvolumedetail_i,i>>
+|*s* +
+_optional_|s is the generated value of this quantity to avoid recalculation|string
+|===
+
+[[_persistentvolumedetail_d]]
+*d*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*scale* +
+_optional_|Scale represents the type used for the scale of a Dec.|integer(int32)
+|*unscaled* +
+_optional_|An Int represents a signed multi-precision integer.
+The zero value for an Int represents the value 0.|<<_persistentvolumedetail_d_unscaled,unscaled>>
+|===
+
+[[_persistentvolumedetail_d_unscaled]]
+*unscaled*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*abs* +
+_optional_||integer
+|*neg* +
+_optional_||boolean
+|===
+
+[[_persistentvolumedetail_i]]
+*i*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*scale* +
+_optional_|Scale is used for getting and setting the base-10 scaled value.
+
+Base-2 scales are omitted for mathematical simplicity.
+
+See Quantity.ScaledValue for more details.|integer
+|*value* +
+_optional_||integer(int64)
+|===
+
+
+[[_persistentvolumelist]]
+=== PersistentVolumeList
+PersistentVolumeList contains a list of Persistent Volumes in the cluster
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*items* +
+_required_||< <<_persistentvolume,PersistentVolume>> > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|===
+
+
+[[_pod]]
+=== Pod
+Pod is a view of kubernetes Pod resource, it is Pod plus additional augmented data
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*nodeName* +
+_required_|Name of the node this pod runs on|string
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*podStatus* +
+_required_||<<_podstatus,PodStatus>>
+|*restartCount* +
+_required_|Count of containers restarts|integer
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_podlist]]
+=== PodList
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|*pods* +
+_required_||< <<_pod,Pod>> > array
+|*status* +
+_required_||<<_resourcestatus,ResourceStatus>>
+|===
+
+
+[[_podstatus]]
+=== PodStatus
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*containerStates* +
+_required_||< <<_containerstate,ContainerState>> > array
+|*podPhase* +
+_required_|Running Pending Failed Succeeded in apiserver guess|string
+|*status* +
+_required_|Running Pending Failed Succeeded|string
+|===
+
+
+[[_resourcequotadetail]]
+=== ResourceQuotaDetail
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*scopes* +
+_required_||< enum (Terminating, NotTerminating, BestEffort, NotBestEffort) > array
+|*statusList* +
+_required_||< string, <<_resourcequotadetail_statuslist,statusList>> > map
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+[[_resourcequotadetail_statuslist]]
+*statusList*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*hard* +
+_optional_||string
+|*used* +
+_optional_||string
+|===
+
+
+[[_resourcequotadetaillist]]
+=== ResourceQuotaDetailList
+ResourceQuotaList is list of resource quotas associated to the namespace
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*items* +
+_required_||< <<_resourcequotadetail,ResourceQuotaDetail>> > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|===
+
+
+[[_resourcestatus]]
+=== ResourceStatus
+ResourceStatus provides basic information about resource status on the list
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*failed* +
+_required_|Number of resources that are currently in failed state|integer
+|*pending* +
+_required_|Number of resources that are currently in pending state|integer
+|*running* +
+_required_|Number of resources that are currently in running state|integer
+|*succeeded* +
+_required_|Number of resources that are currently in succeeded state|integer
+|===
+
+
+[[_secret]]
+=== Secret
+Secret is a single secret returned to the frontend
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*type* +
+_required_||enum (Opaque, kubernetes.io/service-account-token, kubernetes.io/service-account.name, kubernetes.io/service-account.uid, token, kubernetes.kubeconfig, ca.crt, namespace, kubernetes.io/dockercfg, .dockercfg, kubernetes.io/dockerconfigjson, .dockerconfigjson, kubernetes.io/basic-auth, username, password, kubernetes.io/ssh-auth, ssh-privatekey, kubernetes.io/tls, tls.crt, tls.key)
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_secretdetail]]
+=== SecretDetail
+SecretDetail API resource provides mechanisms to inject containers with configuration data while keeping containers agnostic of Kubernetes
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*data* +
+_required_|Data contains the secret data. Each key must be a valid DNS_SUBDOMAIN or leading dot followed by valid
+DNS_SUBDOMAIN.
+
+The serialized form of the secret data is a base64 encoded string, representing the arbitrary
+(possibly non-string) data value here.|< string, string(byte) > map
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*type* +
+_required_||enum (Opaque, kubernetes.io/service-account-token, kubernetes.io/service-account.name, kubernetes.io/service-account.uid, token, kubernetes.kubeconfig, ca.crt, namespace, kubernetes.io/dockercfg, .dockercfg, kubernetes.io/dockerconfigjson, .dockerconfigjson, kubernetes.io/basic-auth, username, password, kubernetes.io/ssh-auth, ssh-privatekey, kubernetes.io/tls, tls.crt, tls.key)
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_secretlist]]
+=== SecretList
+SecretsList is a response structure for a queried secrets list
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|*secrets* +
+_required_||< <<_secret,Secret>> > array
+|===
+
+
+[[_service]]
+=== Service
+SecretDetail API resource provides mechanisms to inject containers with configuration data while keeping containers agnostic of Kubernetes
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*clusterIP* +
+_required_|ClusterIP is usually assigned by the master.
+Valid values:
+- None (can be specified for headless services when proxying is not required)
+- empty string (&quot;&quot;)
+- valid IP address|string
+|*externalEndpoints* +
+_required_||< <<_endpoint,Endpoint>> > array
+|*internalEndpoint* +
+_required_||<<_endpoint,Endpoint>>
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*selector* +
+_required_|Label selector of the service|< string, string > map
+|*type* +
+_required_|Service Type string describes ingress methods for a service|enum (ClusterIP, NodePort, LoadBalance, ExternalName)
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_servicedetail]]
+=== ServiceDetail
+Detail of service
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*clusterIP* +
+_required_|ClusterIP is usually assigned by the master.
+Valid values:
+- None (can be specified for headless services when proxying is not required)
+- empty string (&quot;&quot;)
+- valid IP address|string
+|*endpointList* +
+_required_||<<_endpointlist,EndpointList>>
+|*errors* +
+_required_||< string > array
+|*eventList* +
+_required_||<<_eventlist,EventList>>
+|*externalEndpoints* +
+_required_||< <<_endpoint,Endpoint>> > array
+|*internalEndpoint* +
+_required_||<<_endpoint,Endpoint>>
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*podList* +
+_required_||<<_podlist,PodList>>
+|*selector* +
+_required_|Label selector of the service|< string, string > map
+|*sessionAffinity* +
+_required_|Session Affinity Type string|enum (ClientIP, None)
+|*type* +
+_required_|Service Type string describes ingress methods for a service|enum (ClusterIP, NodePort, LoadBalance, ExternalName)
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_servicelist]]
+=== ServiceList
+ServiceList contains a list of services in the cluster
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|*services* +
+_required_||< <<_service,Service>> > array
+|===
+
+
+[[_serviceport]]
+=== ServicePort
+ServicePort is a pair of port and protocol - service endpoint
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*nodePort* +
+_required_|The port on each node on which the service is exposed|integer(int32)
+|*port* +
+_required_|Positive port number|integer(int32)
+|*protocol* +
+_required_|Protocol defines network protocols supported for things like container ports|enum (TCP, UDP)
+|===
+
+
+[[_storageclass]]
+=== StorageClass
+SecretDetail API resource provides mechanisms to inject containers with configuration data while keeping containers agnostic of Kubernetes
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*objectMeta* +
+_required_||<<_objectmeta,ObjectMeta>>
+|*parameters* +
+_required_|Parameters holds parameters for the provisioner|< string, string > map
+|*provisioner* +
+_required_|Provisioner is the driver expected to handle this StorageClass.
+For example: "kubernetes.io/gce-pd" or "kubernetes.io/aws-ebs".
+This value may not be empty|string
+|*typeMeta* +
+_required_||<<_typemeta,TypeMeta>>
+|===
+
+
+[[_storageclasslist]]
+=== StorageClassList
+StorageClassList contains a list of StorageClass in the cluster.
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*errors* +
+_required_||< string > array
+|*items* +
+_required_||< <<_storageclass,StorageClass>> > array
+|*listMeta* +
+_required_||<<_listmeta,ListMeta>>
+|===
+
+
+[[_typemeta]]
+=== TypeMeta
+TypeMeta describes the type of an object in response and request
+
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*kind* +
+_required_|Kind of an object|string
+|===
+
+
+

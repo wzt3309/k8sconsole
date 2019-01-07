@@ -1,0 +1,1863 @@
+
+[[_paths]]
+== Paths
+
+[[_configmap_get]]
+=== Get all list of configmap
+....
+GET /configmap
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(configmap.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - configmap.ObjectMeta.name
+* creationTimestamp - configmap.ObjectMeta.creationTimestamp
+* namespace - configmap.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/configmap?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/configmap?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_configmaplist,ConfigMapList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* configmap
+
+
+[[_configmap_namespace_get]]
+=== Get all list of configmap
+....
+GET /configmap/{namespace}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*namespace* +
+_required_|The name of namespace|string|`"default"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(configmap.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - configmap.ObjectMeta.name
+* creationTimestamp - configmap.ObjectMeta.creationTimestamp
+* namespace - configmap.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/configmap/{namespace}?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/configmap/{namespace}?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_configmaplist,ConfigMapList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* configmap
+
+
+[[_configmap_namespace_configmap_get]]
+=== Get all list of configmap
+....
+GET /configmap/{namespace}/{configmap}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*configmap* +
+_required_|The name of configmap|string|`"cluster-info"`
+|*Path*|*namespace* +
+_required_|The name of namespace|string|`"kube-public"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_configmapdetail,ConfigMapDetail>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* configmap
+
+
+[[_csrftoken_action_get]]
+=== Get csrftoken for different verb
+....
+GET /csrftoken/{action}
+....
+
+
+==== Description
+_Note._ csrf has not be enable yet. So you can just test this api, but is meaningless.
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*action* +
+_required_|Different verb, e.g. if action is 'put' means to get csrftoken for verb post
+Posible value of path parameter - action:
+* PUT
+* POST
+* GET
+* DELETE|string|`"get"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_csrftoken_action_get_response_200,Response 200>>
+|===
+
+[[_csrftoken_action_get_response_200]]
+*Response 200*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*token* +
+_optional_||string(byte)
+|===
+
+
+==== Tags
+
+* csrf
+
+
+[[_login_post]]
+=== Login k8sconsole
+....
+POST /login
+....
+
+
+==== Description
+We hava three authentication modes:
+* basic - use username and password, and k8s apiserver need support ABAC mode
+* token(recommand) - use k8s secret token for a service account
+* kubeconfig - not support yet
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Body*|*LoginSpec* +
+_required_|LoginSpec contains information required to authenticate user.|<<_loginspec,LoginSpec>>|
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_authresponse,AuthResponse>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* auth
+
+
+[[_login_modes_get]]
+=== Retrive authentication modes supported
+....
+GET /login/modes
+....
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_login_modes_get_response_200,Response 200>>
+|===
+
+[[_login_modes_get_response_200]]
+*Response 200*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*modes* +
+_required_|List of supported authentication mdoes.|< string > array
+|===
+
+
+==== Tags
+
+* auth
+
+
+[[_login_skippable_get]]
+=== A flag of hide 'auth skip' button
+....
+GET /login/skippable
+....
+
+
+==== Description
+LoginSkippableResponse contains a flag that tells the frontend not to display the 'auth skip' button
+It's just for hide the button, not disable unauthenticated access
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_login_skippable_get_response_200,Response 200>>
+|===
+
+[[_login_skippable_get_response_200]]
+*Response 200*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*skippable* +
+_required_||boolean
+|===
+
+
+==== Tags
+
+* auth
+
+
+[[_namespace_post]]
+=== Create a new namespace
+....
+POST /namespace
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Body*|*NamespaceSpec* +
+_required_|NamespaceSpec is a specification of namespace to create|<<_namespace_post_namespacespec,NamespaceSpec>>|
+|===
+
+[[_namespace_post_namespacespec]]
+*NamespaceSpec*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*name* +
+_required_|Name of the namespace +
+*Example* : `"test"`|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_namespace_post_response_200,Response 200>>
+|*500*|Internal Server Error|No Content
+|===
+
+[[_namespace_post_response_200]]
+*Response 200*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*name* +
+_required_|Name of the namespace|string
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* namespace
+
+
+[[_namespace_get]]
+=== Get all list of namespaces
+....
+GET /namespace
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(namespace.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - namespace.ObjectMeta.name
+* creationTimestamp - namespace.ObjectMeta.creationTimestamp
+* namespace - namespace.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/namespace?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/namespace?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_namespacelist,NamespaceList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* namespace
+
+
+[[_namespace_name_get]]
+=== Get the detail of namespace
+....
+GET /namespace/{name}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*name* +
+_required_|The name of namespace|string|`"default"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_namespacedetail,NamespaceDetail>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* namespace
+
+
+[[_namespace_name_event_get]]
+=== Get all events of the namespace
+....
+GET /namespace/{name}/event
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*name* +
+_required_|The name of namespace|string|`"default"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(namespace.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - namespace.ObjectMeta.name
+* creationTimestamp - namespace.ObjectMeta.creationTimestamp
+* namespace - namespace.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/namespace/{name}/event?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/namespace/{name}/event?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_eventlist,EventList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* namespace
+
+
+[[_node_get]]
+=== Get node
+....
+GET /node
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(Node.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - Node.ObjectMeta.name
+* creationTimestamp - Node.ObjectMeta.creationTimestamp
+* namespace - Node.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/node?filterBy=name,minikube' will filter all pods which ObjectMeta.name contains string 'minikube'|string|`"name,minikube"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/node?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_nodelist,NodeList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* node
+
+
+[[_node_name_get]]
+=== Get node's detail with specific name
+....
+GET /node/{name}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*name* +
+_required_|Node's name|string|`"minikube"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(Node.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - Node.ObjectMeta.name
+* creationTimestamp - Node.ObjectMeta.creationTimestamp
+* namespace - Node.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/node/{name}?filterBy=name,minikube' will filter all pods which ObjectMeta.name contains string 'minikube'|string|`"name,minikube"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/node/{name}?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_nodedetail,NodeDetail>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* node
+
+
+[[_node_name_event_get]]
+=== Get node's events with specific name
+....
+GET /node/{name}/event
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*name* +
+_required_|Node's name|string|`"minikube"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(Node.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - Node.ObjectMeta.name
+* creationTimestamp - Node.ObjectMeta.creationTimestamp
+* namespace - Node.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/node/{name}/event?filterBy=name,minikube' will filter all pods which ObjectMeta.name contains string 'minikube'|string|`"name,minikube"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/node/{name}/event?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_eventlist,EventList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* node
+
+
+[[_node_name_pod_get]]
+=== Get node's pods with specific name
+....
+GET /node/{name}/pod
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*name* +
+_required_|Node's name|string|`"minikube"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(Node.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - Node.ObjectMeta.name
+* creationTimestamp - Node.ObjectMeta.creationTimestamp
+* namespace - Node.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/node/{name}/pod?filterBy=name,minikube' will filter all pods which ObjectMeta.name contains string 'minikube'|string|`"name,minikube"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/node/{name}/pod?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_podlist,PodList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* node
+
+
+[[_persistentvolume_get]]
+=== Get all list of persistent volume
+....
+GET /persistentvolume
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(persistentvolume.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - persistentvolume.ObjectMeta.name
+* creationTimestamp - persistentvolume.ObjectMeta.creationTimestamp
+* namespace - persistentvolume.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/persistentvolume?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/persistentvolume?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_persistentvolumelist,PersistentVolumeList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* persistent-volume
+
+
+[[_persistentvolume_persistentvolume_get]]
+=== Get detail of persistent volume
+....
+GET /persistentvolume/{persistentvolume}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*persistentvolume* +
+_required_|The name of persistentvolume|string|`"test"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_persistentvolumedetail,PersistentVolumeDetail>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* persistent-volume
+
+
+[[_persistentvolumeclaim_get]]
+=== Get all list of persistent volume claim
+....
+GET /persistentvolumeclaim
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(persistentvolumeclaim.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - persistentvolumeclaim.ObjectMeta.name
+* creationTimestamp - persistentvolumeclaim.ObjectMeta.creationTimestamp
+* namespace - persistentvolumeclaim.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/persistentvolumeclaim?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/persistentvolumeclaim?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_persistentvolumeclaimlist,PersistentVolumeClaimList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* persistent-volume-claim
+
+
+[[_persistentvolumeclaim_namespace_get]]
+=== Get all of persistent volume claims in a specific namespace
+....
+GET /persistentvolumeclaim/{namespace}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*namespace* +
+_required_|The name of namespace|string|`"default"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(persistentvolumeclaim.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - persistentvolumeclaim.ObjectMeta.name
+* creationTimestamp - persistentvolumeclaim.ObjectMeta.creationTimestamp
+* namespace - persistentvolumeclaim.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/persistentvolumeclaim/{namespace}?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/persistentvolumeclaim/{namespace}?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_persistentvolumeclaimlist,PersistentVolumeClaimList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* persistent-volume-claim
+
+
+[[_persistentvolumeclaim_namespace_name_get]]
+=== Get detail of persistent volume claim in a specific namespace
+....
+GET /persistentvolumeclaim/{namespace}/{name}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*name* +
+_required_|The name of persistent volume claim|string|`"default"`
+|*Path*|*namespace* +
+_required_|The name of namespace|string|`"default"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_persistentvolumeclaimdetail,PersistentVolumeClaimDetail>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* persistent-volume-claim
+
+
+[[_pod_get]]
+=== Get all pods in k8s cluster
+....
+GET /pod
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(Pod.ObjectMeta is in k8s.io/api/core/v1/types.go):
+* name - Pod.ObjectMeta.name
+* creationTimestamp - Pod.ObjectMeta.creationTimestamp
+* namespace - Pod.ObjectMeta.namespace
+* status - Pod.Status.Phase
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/pod?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"2"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/pod?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_podlist,PodList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* pod
+
+
+[[_pod_namespace_get]]
+=== Get list of pods in a namespace
+....
+GET /pod/{namespace}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*namespace* +
+_required_|The k8s namespace, e.g. 'kube-system', 'default'|string|`"default"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(Pod.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - Pod.ObjectMeta.name
+* creationTimestamp - Pod.ObjectMeta.creationTimestamp
+* namespace - Pod.ObjectMeta.namespace
+* status - Pod.Status.Phase
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/pod/{namespace}?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/pod/{namespace}?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_podlist,PodList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* pod
+
+
+[[_secret_post]]
+=== Create a image pull secret
+....
+POST /secret
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Body*|*ImagePullSecretSpec* +
+_required_|ImagePullSecretSpec is a specification of an image pull secret implements SecretSpec|<<_secret_post_imagepullsecretspec,ImagePullSecretSpec>>|
+|===
+
+[[_secret_post_imagepullsecretspec]]
+*ImagePullSecretSpec*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*data* +
+_required_|The value of the .dockercfg property. It must be Base64 encoded.
+
+The .dockercfg looks like below:
+```json
+{
+    &quot;docker-register-server&quot;: {
+         &quot;username&quot;:&quot;Your Username&quot;,
+         &quot;password&quot;:&quot;Your Password&quot;,
+         &quot;email&quot;:&quot;Your email&quot;,
+         # Use command`echo <Your Username>: <Your Password> \| base64`to get value of &#39;auth&#39;
+         &quot;auth&quot;:&quot;`base64(<Your Username>: <Your Password>)`&quot;
+ }
+}
+
+We can use command `base64 .dockercfg` to encode file .dockercfg
+```|string(byte)
+|*name* +
+_required_|Name of the secret +
+*Example* : `"test"`|string
+|*namespace* +
+_required_|Name of the namespace|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_secret,Secret>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* secret
+
+
+[[_secret_get]]
+=== Get all list of secrets
+....
+GET /secret
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(secret.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - secret.ObjectMeta.name
+* creationTimestamp - secret.ObjectMeta.creationTimestamp
+* namespace - secret.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/secret?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/secret?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_secretlist,SecretList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* secret
+
+
+[[_secret_namespace_get]]
+=== Get secrets of a specific namespace
+....
+GET /secret/{namespace}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*namespace* +
+_required_|The name of namespace|string|`"default"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(secret.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - secret.ObjectMeta.name
+* creationTimestamp - secret.ObjectMeta.creationTimestamp
+* namespace - secret.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/secret/{namespace}?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/secret/{namespace}?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_secretlist,SecretList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* secret
+
+
+[[_secret_namespace_name_get]]
+=== Get details of a secret in a specific namespace
+....
+GET /secret/{namespace}/{name}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*name* +
+_required_|The name of secret|string|`"default-token-n8tj4"`
+|*Path*|*namespace* +
+_required_|The name of namespace|string|`"default"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_secretdetail,SecretDetail>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* secret
+
+
+[[_service_get]]
+=== Get all list of services
+....
+GET /service
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(service.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - service.ObjectMeta.name
+* creationTimestamp - service.ObjectMeta.creationTimestamp
+* namespace - service.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/service?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/service?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_servicelist,ServiceList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* service
+
+
+[[_service_namespace_get]]
+=== Get all list of services in a specific namespace
+....
+GET /service/{namespace}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*namespace* +
+_required_|The name of namespace|string|`"default"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(service.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - service.ObjectMeta.name
+* creationTimestamp - service.ObjectMeta.creationTimestamp
+* namespace - service.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/service/{namespace}?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/service/{namespace}?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_servicelist,ServiceList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* service
+
+
+[[_service_namespace_service_get]]
+=== Get detail of a specific service
+....
+GET /service/{namespace}/{service}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*namespace* +
+_required_|The name of namespace|string|`"default"`
+|*Path*|*service* +
+_required_|The name of service|string|`"kubernetes"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_servicedetail,ServiceDetail>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* service
+
+
+[[_service_namespace_service_pod_get]]
+=== Get pods of a specific service
+....
+GET /service/{namespace}/{service}/pod
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*namespace* +
+_required_|The name of namespace|string|`"default"`
+|*Path*|*service* +
+_required_|The name of service|string|`"kubernetes"`
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(Pod.ObjectMeta is in k8s.io/api/core/v1/types.go):
+* name - Pod.ObjectMeta.name
+* creationTimestamp - Pod.ObjectMeta.creationTimestamp
+* namespace - Pod.ObjectMeta.namespace
+* status - Pod.Status.Phase
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/service/{namespace}/{service}/pod?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"2"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/service/{namespace}/{service}/pod?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_podlist,PodList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* service
+
+
+[[_storageclass_get]]
+=== Get all list of storageclass
+....
+GET /storageclass
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Query*|*filterBy* +
+_optional_|The 'filterBy' takes raw filter options string like param1=val1,param2=val2.
+
+The valid filter parameters like below(storageclass.ObjectMeta is in `k8s.io/api/core/v1/types.go`):
+* name - storageclass.ObjectMeta.name
+* creationTimestamp - storageclass.ObjectMeta.creationTimestamp
+* namespace - storageclass.ObjectMeta.namespace
+
+And we use full match to filter value, just like syntax of 'like' in mysql
+
+e.g.
+
+'/storageclass?filterBy=name,kube-' will filter all pods which ObjectMeta.name contains string 'kube-'|string|`"name,kube-"`
+|*Query*|*itemsPerPage* +
+_optional_|The number of items per page|integer|`"1"`
+|*Query*|*page* +
+_optional_|The page number, which must starts from '1'|integer|`"1"`
+|*Query*|*sortBy* +
+_optional_|The 'sortBy' holds the name of property that should be sorted and whether order should be asc or desc.
+
+Like 'd,param1' means sort by param1 in desc. The valid sort parameters are same as 'filterBy'
+
+e.g.
+
+'/storageclass?sortBy=d,name'|string|`"d,name"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_storageclasslist,StorageClassList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* storageclass
+
+
+[[_storageclass_storageclass_get]]
+=== Get detail of storageclass
+....
+GET /storageclass/{storageclass}
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*storageclass* +
+_required_|Name of storageclass|string|`"test"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_storageclass,StorageClass>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* storageclass
+
+
+[[_storageclass_storageclass_persistentvolume_get]]
+=== Get persistent volume list of the storageclass
+....
+GET /storageclass/{storageclass}/persistentvolume
+....
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Path*|*storageclass* +
+_required_|Name of storageclass|string|`"test"`
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_persistentvolumelist,PersistentVolumeList>>
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* storageclass
+
+
+[[_token_refresh_post]]
+=== Refresh jweToken
+....
+POST /token/refresh
+....
+
+
+==== Description
+Refresh jweToken avoiding which was expired.
+
+
+==== Parameters
+
+[options="header", cols=".^1,.^3,.^10,.^4,.^2"]
+|===
+|Type|Name|Description|Schema|Default
+|*Body*|*TokenRefreshSpec* +
+_required_|TokenRefreshSpec contains token that is required by token refresh operation.|<<_token_refresh_post_tokenrefreshspec,TokenRefreshSpec>>|
+|===
+
+[[_token_refresh_post_tokenrefreshspec]]
+*TokenRefreshSpec*
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|*jweToken* +
+_optional_||<<_jwe,JWE>>
+|===
+
+
+==== Responses
+
+[options="header", cols=".^1,.^15,.^4"]
+|===
+|HTTP Code|Description|Schema
+|*200*|ok|<<_authresponse,AuthResponse>>
+|*401*|Unauthorized|No Content
+|*500*|Internal Server Error|No Content
+|===
+
+
+==== Consumes
+
+* `application/json`
+
+
+==== Produces
+
+* `application/json`
+* `text/plain`
+
+
+==== Tags
+
+* auth
+
+
+

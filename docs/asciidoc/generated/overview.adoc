@@ -1,0 +1,56 @@
+= K8sconsole Api
+
+
+[[_overview]]
+== Overview
+= This is a `k8sconsole` api docs
+
+`K8sconsole` is a web console designed to manage kubernetes resources,
+just like the command-line tool `kubectl`.
+
+We can use apis list below to `get`/`post`/`delete` kubernetes resources.
+
+
+=== Version information
+[%hardbreaks]
+_Version_ : v0.0.1
+
+
+=== Contact information
+[%hardbreaks]
+_Contact Email_ : wzt3309@gmail.com
+
+
+=== URI scheme
+[%hardbreaks]
+_Host_ : localhost:9090
+_BasePath_ : /api/v1
+_Schemes_ : HTTP, HTTPS
+
+
+=== Tags
+
+* auth : Authertication & Authorization
+* csrf : Defense CSRF
+* pod : CRUD Operations of Pods
+* node : CRUD Operations of Nodes
+* namespace : CRUD Operations of Namespaces
+* secret : CRUD Operations of secret
+* configmap : CRUD Operations of ConfigMap
+* persistent-volume : CRUD Operations of Persistent Volume
+* persistent-volume-claim : CRUD Operations of Persistent Volume Claim
+* storageclass : CRUD Operations of StorageClass
+* service : CRUD Operations of Service
+
+
+=== Consumes
+
+* `application/json`
+
+
+=== Produces
+
+* `application/json`
+
+
+
